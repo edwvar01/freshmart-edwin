@@ -57,30 +57,33 @@
                 <div class="product-detail-grid">
                     <!-- Image Gallery -->
                     <div class="product-detail-image">
-                        <img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&q=80"
-                            alt="Fresh Organic Carrots">
+                        <img id="detailImage"
+                            src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&q=80"
+                            alt="Product Image">
                     </div>
 
                     <!-- Product Meta Data -->
                     <div class="product-detail-info">
                         <div class="detail-meta">
-                            <span class="category-tag">Vegetables</span>
-                            <span class="weight-tag">1 kg</span>
+                            <span id="detailCategory" class="category-tag">Vegetables</span>
+                            <span id="detailWeight" class="weight-tag">1 kg</span>
                         </div>
 
-                        <h1 class="detail-title">Fresh Organic Carrots</h1>
+                        <h1 id="detailTitle" class="detail-title">Loading...</h1>
+
+                        <div id="detailBadges" style="margin-bottom: 1rem;"></div>
 
                         <div class="detail-rating">
                             <span class="stars">★★★★★</span>
                             <span class="rating-value">4.8 Rating</span>
                         </div>
 
-                        <div class="detail-price-box">
-                            <span class="detail-price">₹60</span>
+                        <div class="detail-price-box" id="detailPriceBox">
+                            <span id="detailPrice" class="detail-price">₹--</span>
                         </div>
 
                         <p class="detail-description">
-                            Freshly sourced vegetables delivered directly to your door. Our products go through strict
+                            Freshly sourced produce delivered directly to your door. Our products go through strict
                             quality checks to ensure maximum freshness and taste. Perfect for your daily cooking and
                             healthy living.
                         </p>
@@ -90,8 +93,9 @@
                                 <i data-lucide="shield-check" width="24" height="24" class="verified"></i>
                             </div>
                             <div>
-                                <h4>Green Valley Farms</h4>
-                                <p><i data-lucide="map-pin" width="14" height="14"></i> Outskirts, Sector 62</p>
+                                <h4 id="detailFarmerName">Loading...</h4>
+                                <p><i data-lucide="map-pin" width="14" height="14"></i> <span
+                                        id="detailFarmerLocation">Verified Location</span></p>
                             </div>
                         </div>
 
@@ -107,6 +111,11 @@
                             <button class="btn btn-primary add-to-cart-large"
                                 onclick="alert(document.getElementById('qty').innerText + 'x Fresh Organic Carrots added to cart!');">
                                 <i data-lucide="shopping-cart" width="20" height="20"></i> Add to Cart
+                            </button>
+
+                            <button class="btn btn-secondary buy-now-large"
+                                style="background:#f59e0b; color:white; border:none; padding:0.8rem 1.5rem; border-radius:8px; font-weight:600; font-size:1rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:transform 0.2s ease;">
+                                <i data-lucide="zap" width="20" height="20"></i> Buy Now
                             </button>
 
                             <button class="btn-icon">
@@ -141,6 +150,76 @@
 
     <script>
         lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = parseInt(urlParams.get('id'));
+
+            if (!productId) {
+                // No ID provided, go back or to products
+                window.location.href = 'products.html';
+                return;
+            }
+
+            // Fetch from local storage
+            let prodsStr = localStorage.getItem('fm_admin_products');
+            let products = prodsStr ? JSON.parse(prodsStr) : [];
+            const product = products.find(p => p.id === productId);
+
+            if (!product) {
+                alert('Product not found!');
+                window.location.href = 'products.html';
+                return;
+            }
+
+            // Populate DOM
+            document.title = `FreshMart - ${product.name}`;
+            document.getElementById('detailImage').src = product.image;
+            document.getElementById('detailImage').alt = product.name;
+            document.getElementById('detailTitle').innerText = product.name;
+            document.getElementById('detailCategory').innerText = product.category || 'Grocery';
+            document.getElementById('detailWeight').innerText = product.weight || '1 unit';
+            document.getElementById('detailFarmerName').innerText = product.farmerName || product.seller || 'FreshMart Verified';
+
+            if (product.farmLocation) {
+                document.getElementById('detailFarmerLocation').innerText = product.farmLocation;
+            }
+
+            // Pricing logic
+            if (product.isDiscount && product.originalPrice) {
+                document.getElementById('detailPriceBox').innerHTML = `
+                    <span class="detail-price" style="color: #ef4444;">₹${product.price}</span>
+                    <span style="text-decoration: line-through; color: #94a3b8; font-size: 1.2rem; margin-left: 1rem;">₹${product.originalPrice}</span>
+                `;
+                document.getElementById('detailBadges').innerHTML = `
+                    <span class="badge" style="background:#fef08a; color:#854d0e; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight:bold; font-size:0.8rem;">
+                        <i data-lucide="clock" width="14" height="14" style="vertical-align:middle; margin-right:4px;"></i> Near Expiry
+                    </span>
+                `;
+                lucide.createIcons();
+            } else {
+                document.getElementById('detailPrice').innerText = '₹' + parseFloat(product.price).toFixed(2);
+            }
+
+            // Update add to cart button
+            const addBtn = document.querySelector('.add-to-cart-large');
+            if (addBtn) {
+                addBtn.onclick = () => {
+                    const qty = document.getElementById('qty').innerText;
+                    alert(`${qty}x ${product.name} added to cart!`);
+                };
+            }
+
+            // Buy Now button logic
+            const buyBtn = document.querySelector('.buy-now-large');
+            if (buyBtn) {
+                buyBtn.onclick = () => {
+                    const qty = document.getElementById('qty').innerText;
+                    // Redirect to checkout with specific product + qty
+                    window.location.href = `checkout.html?buy_now=${product.id}&qty=${qty}`;
+                };
+            }
+        });
     </script>
 </body>
 
