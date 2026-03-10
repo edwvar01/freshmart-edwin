@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshMart - Admin Login</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="admin-login-body">
+    <div class="background-wrapper">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="admin-logo">
+            <i data-lucide="shield-check" width="48" height="48"></i>
+            <h1>Admin Portal</h1>
+            <p>FreshMart Management System</p>
+        </div>
+
+        <form id="adminLoginForm" class="admin-form">
+            <div class="input-group">
+                <i data-lucide="user" class="input-icon" width="20" height="20"></i>
+                <input type="text" id="adminUsername" placeholder="Admin Username" required>
+            </div>
+
+            <div class="input-group">
+                <i data-lucide="lock" class="input-icon" width="20" height="20"></i>
+                <input type="password" id="adminPassword" placeholder="Admin Password" required>
+            </div>
+
+            <div id="loginError" class="error-msg" style="display: none;">Invalid username or password</div>
+
+            <button type="submit" class="submit-btn admin-btn">
+                <span>Secure Login</span>
+                <i data-lucide="arrow-right" width="20" height="20"></i>
+            </button>
+        </form>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
