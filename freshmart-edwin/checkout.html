@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshMart - Checkout</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/Navbar.css">
+    <link rel="stylesheet" href="css/Footer.css">
+    <link rel="stylesheet" href="css/Checkout.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <a href="home.html" class="navbar-logo">
+                    <i data-lucide="leaf" class="logo-icon" width="28" height="28"></i> FreshMart
+                </a>
+
+                <div class="navbar-search desktop-search">
+                    <form action="products.html">
+                        <input type="text" placeholder="Search for fresh groceries...">
+                        <button type="submit"><i data-lucide="search" width="20" height="20"></i></button>
+                    </form>
+                </div>
+
+                <div class="navbar-links desktop-links">
+                    <a href="home.html" class="nav-link">Home</a>
+                    <a href="products.html" class="nav-link">Products</a>
+                    <a href="farmers.html" class="nav-link">Fresh Farmers</a>
+                    <a href="orders.html" class="nav-link">Orders</a>
+                </div>
+
+                <div class="navbar-actions">
+                    <a href="cart.html" class="nav-action-btn cart-btn">
+                        <i data-lucide="shopping-cart" width="24" height="24"></i>
+                        <span class="cart-badge">2</span>
+                    </a>
+                    <a href="index.html" class="nav-action-btn user-btn desktop-user">
+                        <i data-lucide="user" width="24" height="24"></i>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content checkout-layout">
+            <div class="checkout-container">
+
+                <div class="checkout-main">
+                    <h1 class="page-title">Secure Checkout</h1>
+
+                    <div class="checkout-section">
+                        <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address</h2>
+                        <form id="checkout-form" action="orders.html" class="checkout-form" onsubmit="alert('Order Placed Successfully via Cash on Delivery!'); return true;">
+                            <div class="form-row">
+                                <div class="input-block">
+                                    <label>Full Name</label>
+                                    <input type="text" name="fullName" required>
+                                </div>
+                                <div class="input-block">
+                                    <label>Phone Number</label>
+                                    <input type="tel" name="phone" required>
+                                </div>
+                            </div>
+
+                            <div class="input-block">
+                                <label>Full Delivery Address</label>
+                                <input type="text" name="address" required placeholder="123 Street Name, Apartment/Suite">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="input-block">
+                                    <label>City / Neighborhood</label>
+                                    <input type="text" name="city" required>
+                                </div>
+                                <div class="input-block">
+                                    <label>ZIP / Pincode</label>
+                                    <input type="text" name="zip" required>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="checkout-section">
+                        <h2 class="section-title"><i data-lucide="check-circle-2" width="20" height="20"></i> Payment Method</h2>
+                        <div class="payment-method selected">
+                            <div class="radio-circle"></div>
+                            <div>
+                                <h4>Cash on Delivery (COD)</h4>
+                                <p>Pay with cash upon delivery of your fresh groceries.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guarantee-box">
+                        <i data-lucide="shield-check" width="32" height="32" color="#2ECC71"></i>
+                        <div>
+                            <h4>Freshness Guarantee</h4>
+                            <p>You only pay for what meets our strict quality standards.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="checkout-summary">
+                    <h2 class="summary-title">Order Summary (3 items)</h2>
+
+                    <div class="mini-cart-items">
+                        
+                        <div class="mini-cart-item">
+                            <div class="mini-item-info">
+                                <span class="mini-item-qty">1x</span>
+                                <span class="mini-item-name">Fresh Organic Carrots</span>
+                            </div>
+                            <span class="mini-item-price">₹60</span>
+                        </div>
+                        
+                        <div class="mini-cart-item">
+                            <div class="mini-item-info">
+                                <span class="mini-item-qty">2x</span>
+                                <span class="mini-item-name">Fresh Cow Milk</span>
+                            </div>
+                            <span class="mini-item-price">₹130</span>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-divider"></div>
+
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>₹190</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Fee</span>
+                        <span>₹20</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Platform Fee</span>
+                        <span>₹5</span>
+                    </div>
+
+                    <div class="summary-divider"></div>
+
+                    <div class="summary-row total-row">
+                        <span>Total</span>
+                        <span>₹215</span>
+                    </div>
+
+                    <button type="submit" form="checkout-form" class="btn btn-primary place-order-btn">
+                        Place Order - Pay on Delivery
+                    </button>
+                    <p class="terms-text">By placing your order, you agree to our Terms of Service and Privacy Policy.</p>
+                </aside>
+
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-bottom">
+                    <p>&copy; 2026 FreshMart. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

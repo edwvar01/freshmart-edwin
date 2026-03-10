@@ -1,0 +1,148 @@
+.dashboard-layout {
+    background-color: #f8fafc;
+    padding: 3rem 0;
+}
+
+.dashboard-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.dashboard-header {
+    margin-bottom: 2.5rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f1f5f9;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: #f8fafc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stat-title {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.upload-section {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+}
+
+.upload-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.upload-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #1e293b;
+}
+
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.input-block label {
+    display: block;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.input-block input,
+.input-block select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #334155;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+}
+
+.input-block input:focus,
+.input-block select:focus {
+    outline: none;
+    border-color: #2ECC71;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+}
+
+.input-hint {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 0.4rem;
+}
+
+.submit-product-btn {
+    margin-top: 2rem;
+    padding: 1.2rem;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .dashboard-stats,
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
