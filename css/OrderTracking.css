@@ -1,6 +1,6 @@
 .order-layout {
     background-color: #f8fafc;
-    padding: 3rem 0;
+    padding: calc(3rem + 80px) 0 3rem 0;
 }
 
 .order-container {

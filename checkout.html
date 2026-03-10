@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="css/Checkout.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <div class="page-wrapper">
         <!-- Navbar -->
@@ -21,7 +23,7 @@
 
                 <div class="navbar-search desktop-search">
                     <form action="products.html">
-                        <input type="text" placeholder="Search for fresh groceries...">
+                        <input type="text" name="search" placeholder="Search for fresh groceries...">
                         <button type="submit"><i data-lucide="search" width="20" height="20"></i></button>
                     </form>
                 </div>
@@ -52,8 +54,10 @@
                     <h1 class="page-title">Secure Checkout</h1>
 
                     <div class="checkout-section">
-                        <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address</h2>
-                        <form id="checkout-form" action="orders.html" class="checkout-form" onsubmit="alert('Order Placed Successfully via Cash on Delivery!'); return true;">
+                        <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address
+                        </h2>
+                        <form id="checkout-form" action="orders.html" class="checkout-form"
+                            onsubmit="alert('Order Placed Successfully via Cash on Delivery!'); return true;">
                             <div class="form-row">
                                 <div class="input-block">
                                     <label>Full Name</label>
@@ -67,7 +71,8 @@
 
                             <div class="input-block">
                                 <label>Full Delivery Address</label>
-                                <input type="text" name="address" required placeholder="123 Street Name, Apartment/Suite">
+                                <input type="text" name="address" required
+                                    placeholder="123 Street Name, Apartment/Suite">
                             </div>
 
                             <div class="form-row">
@@ -84,7 +89,8 @@
                     </div>
 
                     <div class="checkout-section">
-                        <h2 class="section-title"><i data-lucide="check-circle-2" width="20" height="20"></i> Payment Method</h2>
+                        <h2 class="section-title"><i data-lucide="check-circle-2" width="20" height="20"></i> Payment
+                            Method</h2>
                         <div class="payment-method selected">
                             <div class="radio-circle"></div>
                             <div>
@@ -107,7 +113,7 @@
                     <h2 class="summary-title">Order Summary (3 items)</h2>
 
                     <div class="mini-cart-items">
-                        
+
                         <div class="mini-cart-item">
                             <div class="mini-item-info">
                                 <span class="mini-item-qty">1x</span>
@@ -115,7 +121,7 @@
                             </div>
                             <span class="mini-item-price">₹60</span>
                         </div>
-                        
+
                         <div class="mini-cart-item">
                             <div class="mini-item-info">
                                 <span class="mini-item-qty">2x</span>
@@ -151,7 +157,8 @@
                     <button type="submit" form="checkout-form" class="btn btn-primary place-order-btn">
                         Place Order - Pay on Delivery
                     </button>
-                    <p class="terms-text">By placing your order, you agree to our Terms of Service and Privacy Policy.</p>
+                    <p class="terms-text">By placing your order, you agree to our Terms of Service and Privacy Policy.
+                    </p>
                 </aside>
 
             </div>
@@ -171,4 +178,5 @@
         lucide.createIcons();
     </script>
 </body>
+
 </html>

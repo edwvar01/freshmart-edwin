@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="css/ProductDetails.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <div class="page-wrapper">
         <!-- Navbar -->
@@ -21,7 +23,7 @@
 
                 <div class="navbar-search desktop-search">
                     <form action="products.html">
-                        <input type="text" placeholder="Search for fresh groceries...">
+                        <input type="text" name="search" placeholder="Search for fresh groceries...">
                         <button type="submit"><i data-lucide="search" width="20" height="20"></i></button>
                     </form>
                 </div>
@@ -55,7 +57,8 @@
                 <div class="product-detail-grid">
                     <!-- Image Gallery -->
                     <div class="product-detail-image">
-                        <img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&q=80" alt="Fresh Organic Carrots">
+                        <img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&q=80"
+                            alt="Fresh Organic Carrots">
                     </div>
 
                     <!-- Product Meta Data -->
@@ -77,7 +80,9 @@
                         </div>
 
                         <p class="detail-description">
-                            Freshly sourced vegetables delivered directly to your door. Our products go through strict quality checks to ensure maximum freshness and taste. Perfect for your daily cooking and healthy living.
+                            Freshly sourced vegetables delivered directly to your door. Our products go through strict
+                            quality checks to ensure maximum freshness and taste. Perfect for your daily cooking and
+                            healthy living.
                         </p>
 
                         <div class="farmer-card-mini">
@@ -92,12 +97,15 @@
 
                         <div class="purchase-actions">
                             <div class="quantity-selector">
-                                <button onclick="let q=document.getElementById('qty'); q.innerText=Math.max(1, parseInt(q.innerText)-1);">-</button>
+                                <button
+                                    onclick="let q=document.getElementById('qty'); q.innerText=Math.max(1, parseInt(q.innerText)-1);">-</button>
                                 <span id="qty">1</span>
-                                <button onclick="let q=document.getElementById('qty'); q.innerText=parseInt(q.innerText)+1;">+</button>
+                                <button
+                                    onclick="let q=document.getElementById('qty'); q.innerText=parseInt(q.innerText)+1;">+</button>
                             </div>
 
-                            <button class="btn btn-primary add-to-cart-large" onclick="alert(document.getElementById('qty').innerText + 'x Fresh Organic Carrots added to cart!');">
+                            <button class="btn btn-primary add-to-cart-large"
+                                onclick="alert(document.getElementById('qty').innerText + 'x Fresh Organic Carrots added to cart!');">
                                 <i data-lucide="shopping-cart" width="20" height="20"></i> Add to Cart
                             </button>
 
@@ -135,4 +143,5 @@
         lucide.createIcons();
     </script>
 </body>
+
 </html>

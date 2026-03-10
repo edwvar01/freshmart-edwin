@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="css/Cart.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <div class="page-wrapper">
         <!-- Navbar -->
@@ -21,7 +23,7 @@
 
                 <div class="navbar-search desktop-search">
                     <form action="products.html">
-                        <input type="text" placeholder="Search for fresh groceries...">
+                        <input type="text" name="search" placeholder="Search for fresh groceries...">
                         <button type="submit"><i data-lucide="search" width="20" height="20"></i></button>
                     </form>
                 </div>
@@ -52,10 +54,11 @@
                     <h1 class="page-title">Shopping Cart (2 Items)</h1>
 
                     <div class="cart-items-list" id="cart-items">
-                        
+
                         <!-- Cart Item 1 -->
                         <div class="cart-item" id="item-1">
-                            <img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80" alt="Fresh Organic Carrots" class="cart-item-img">
+                            <img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80"
+                                alt="Fresh Organic Carrots" class="cart-item-img">
 
                             <div class="cart-item-details">
                                 <h3>Fresh Organic Carrots</h3>
@@ -82,7 +85,8 @@
 
                         <!-- Cart Item 2 -->
                         <div class="cart-item" id="item-2">
-                            <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&q=80" alt="Fresh Cow Milk" class="cart-item-img">
+                            <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&q=80"
+                                alt="Fresh Cow Milk" class="cart-item-img">
 
                             <div class="cart-item-details">
                                 <h3>Fresh Cow Milk</h3>
@@ -113,7 +117,8 @@
                         <div class="promo-icon">🚚</div>
                         <div>
                             <h4>Support Local Delivery</h4>
-                            <p>Your items are being consolidated from local farms to ensure maximum freshness while reducing carbon footprint.</p>
+                            <p>Your items are being consolidated from local farms to ensure maximum freshness while
+                                reducing carbon footprint.</p>
                         </div>
                     </div>
                 </div>
@@ -126,7 +131,8 @@
                         <span>₹<span id="subtotal">190</span></span>
                     </div>
                     <div class="summary-row">
-                        <span>Delivery Fee <span id="free-delivery-text" style="display:none; color: #2ECC71; font-size: 0.8rem;">(Free)</span></span>
+                        <span>Delivery Fee <span id="free-delivery-text"
+                                style="display:none; color: #2ECC71; font-size: 0.8rem;">(Free)</span></span>
                         <span>₹<span id="delivery-fee">20</span></span>
                     </div>
                     <div class="summary-row">
@@ -141,8 +147,10 @@
                         <span>₹<span id="total-price">215</span></span>
                     </div>
 
-                    <button onclick="window.location.href='checkout.html'" class="btn btn-primary checkout-btn" id="btn-checkout">
-                        Proceed to Checkout <i data-lucide="arrow-right" width="20" height="20" style="margin-left: 8px;"></i>
+                    <button onclick="window.location.href='checkout.html'" class="btn btn-primary checkout-btn"
+                        id="btn-checkout">
+                        Proceed to Checkout <i data-lucide="arrow-right" width="20" height="20"
+                            style="margin-left: 8px;"></i>
                     </button>
 
                     <a href="products.html" class="continue-shopping">
@@ -169,7 +177,7 @@
         function updateTotals() {
             let subtotal = 0;
             const items = document.querySelectorAll('.cart-item');
-            
+
             items.forEach(item => {
                 const pricePerQty = parseInt(item.querySelector('.cart-item-price').getAttribute('data-price'));
                 const qty = parseInt(item.querySelector('.qty-display').innerText);
@@ -201,7 +209,7 @@
             document.getElementById('delivery-fee').innerText = deliveryFee;
             document.getElementById('platform-fee').innerText = platformFee;
             document.getElementById('total-price').innerText = subtotal + deliveryFee + platformFee;
-            
+
             const totalItems = Array.from(items).reduce((acc, item) => acc + parseInt(item.querySelector('.qty-display').innerText), 0);
             document.querySelector('.page-title').innerText = `Shopping Cart (${totalItems} Items)`;
             document.getElementById('cart-badge-count').innerText = totalItems;
@@ -211,7 +219,7 @@
             const item = document.getElementById(itemId);
             const qtyDisplay = item.querySelector('.qty-display');
             let currentQty = parseInt(qtyDisplay.innerText);
-            
+
             if (currentQty + change > 0) {
                 qtyDisplay.innerText = currentQty + change;
                 updateTotals();
@@ -222,7 +230,7 @@
             const item = document.getElementById(itemId);
             item.remove();
             updateTotals();
-            
+
             const remainingItems = document.querySelectorAll('.cart-item');
             if (remainingItems.length === 0) {
                 document.getElementById('cart-items').innerHTML = `
@@ -235,4 +243,5 @@
         }
     </script>
 </body>
+
 </html>
