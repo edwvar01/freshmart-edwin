@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/Footer.css">
     <link rel="stylesheet" href="css/ProductDetails.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
 
 </head>
 
@@ -185,6 +185,15 @@
             document.getElementById('detailCategory').innerText = product.category || 'Grocery';
             document.getElementById('detailWeight').innerText = product.weight || '1 unit';
             document.getElementById('detailFarmerName').innerText = product.farmerName || product.seller || 'FreshMart Verified';
+
+            if (product.expiryDate) {
+                const expiryBadge = `
+                    <span class="badge" style="background:#fee2e2; color:#b91c1c; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight:bold; font-size:0.8rem; margin-right: 0.5rem;">
+                        <i data-lucide="calendar" width="14" height="14" style="vertical-align:middle; margin-right:4px;"></i> Expires: ${product.expiryDate}
+                    </span>
+                 `;
+                document.getElementById('detailBadges').insertAdjacentHTML('beforeend', expiryBadge);
+            }
 
             if (product.farmLocation) {
                 document.getElementById('detailFarmerLocation').innerText = product.farmLocation;

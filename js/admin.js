@@ -108,6 +108,17 @@ function initProductsManager() {
     const addBtn = document.getElementById('openAddProductModal');
     const closeBtn = document.getElementById('closeModal');
     const form = document.getElementById('productForm');
+    const categorySelect = document.getElementById('productCategory');
+    const expiryGroup = document.getElementById('expiryGroup');
+
+    // Show/Hide expiry field based on category
+    categorySelect.addEventListener('change', () => {
+        if (categorySelect.value === 'Dairy') {
+            expiryGroup.style.display = 'block';
+        } else {
+            expiryGroup.style.display = 'none';
+        }
+    });
 
     // Render Products Table
     const renderProducts = () => {
@@ -117,7 +128,7 @@ function initProductsManager() {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${p.image}" class="product-thumb" alt="product"></td>
-                <td><strong>${p.name}</strong></td>
+                <td><strong>${p.name}</strong>${p.expiryDate ? `<br><small style="color: #64748b;">Expires: ${p.expiryDate}</small>` : ''}</td>
                 <td><span class="badge ${p.category === 'Vegetables' ? 'badge-success' : 'badge-warning'}">${p.category}</span></td>
                 <td>$${parseFloat(p.price).toFixed(2)}</td>
                 <td>${p.seller}</td>
@@ -139,6 +150,7 @@ function initProductsManager() {
     addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('productId').value = '';
+        expiryGroup.style.display = 'none';
         document.getElementById('modalTitle').innerText = 'Add New Product';
         modal.classList.add('active');
     });
@@ -160,6 +172,7 @@ function initProductsManager() {
             image: document.getElementById('productImage').value,
             category: document.getElementById('productCategory').value,
             seller: document.getElementById('productSeller').value,
+            expiryDate: document.getElementById('productCategory').value === 'Dairy' ? document.getElementById('productExpiry').value : null
         };
 
         if (id) {
@@ -198,6 +211,13 @@ function initProductsManager() {
         document.getElementById('productImage').value = product.image;
         document.getElementById('productCategory').value = product.category;
         document.getElementById('productSeller').value = product.seller;
+
+        if (product.category === 'Dairy') {
+            expiryGroup.style.display = 'block';
+            document.getElementById('productExpiry').value = product.expiryDate || '';
+        } else {
+            expiryGroup.style.display = 'none';
+        }
 
         document.getElementById('modalTitle').innerText = 'Edit Product';
         modal.classList.add('active');

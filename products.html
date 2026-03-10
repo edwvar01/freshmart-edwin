@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/Products.css">
     <link rel="stylesheet" href="css/ProductCard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
 
 </head>
 
@@ -68,6 +68,7 @@
                             <li><button class="category-btn">Dairy</button></li>
                             <li><button class="category-btn">Grains</button></li>
                             <li><button class="category-btn">Organic Products</button></li>
+                            <li><button class="category-btn">Near Expiry</button></li>
                             <li><button class="category-btn">Discount Deals</button></li>
                         </ul>
                     </div>
@@ -76,10 +77,11 @@
                         <h3 class="widget-title"><i data-lucide="sliders-horizontal" width="18" height="18"></i> Price
                             Range</h3>
                         <div class="price-filter">
-                            <input type="range" min="0" max="500" class="price-slider">
+                            <input type="range" min="0" max="500" value="500" class="price-slider"
+                                id="priceRangeSlider">
                             <div class="price-labels">
                                 <span>₹0</span>
-                                <span>₹500+</span>
+                                <span id="priceValueLabel">₹500+</span>
                             </div>
                         </div>
                     </div>
@@ -87,7 +89,8 @@
                     <div class="sidebar-promo">
                         <h4>Fight Food Waste</h4>
                         <p>Buy "Near Expiry" items to save money and the planet!</p>
-                        <button class="promo-btn">View Deals</button>
+                        <button class="promo-btn"
+                            onclick="document.querySelector('.category-btn:nth-child(6)').click()">View Deals</button>
                     </div>
                 </aside>
 
@@ -205,12 +208,14 @@
             renderStoreProducts();
 
             const productCards = document.querySelectorAll('.product-card');
-            const localSearchInput = document.getElementById('localSearchInput');
             const resultsCount = document.querySelector('.results-count');
             const categoryBtns = document.querySelectorAll('.category-btn');
+            const priceSlider = document.getElementById('priceRangeSlider');
+            const priceValueLabel = document.getElementById('priceValueLabel');
 
             let currentSearch = '';
             let currentCategory = 'All';
+            let currentMaxPrice = 500;
 
             function filterProducts() {
                 const term = currentSearch.toLowerCase().trim();
@@ -220,14 +225,20 @@
                     const title = card.querySelector('.product-title').textContent.toLowerCase();
                     const category = card.querySelector('.product-category').textContent.trim();
                     const isDiscount = card.querySelector('.badge-discount') !== null;
+                    const priceText = card.querySelector('.product-price').textContent.replace('₹', '');
+                    const price = parseFloat(priceText);
 
                     const matchesSearch = title.includes(term);
+                    const matchesPrice = price <= currentMaxPrice;
                     let matchesCategory = false;
 
                     if (currentCategory === 'All') {
                         matchesCategory = true;
                     } else if (currentCategory === 'Discount Deals') {
                         matchesCategory = isDiscount;
+                    } else if (currentCategory === 'Near Expiry') {
+                        // Show products that are either marked as near expiry or have a discount
+                        matchesCategory = isDiscount || title.includes('expiry');
                     } else if (currentCategory === 'Herbs & Spices') {
                         matchesCategory = category === 'Herbs';
                     } else if (currentCategory === 'Fresh Vegetables') {
@@ -243,7 +254,7 @@
                         matchesCategory = category === currentCategory || category.includes(currentCategory);
                     }
 
-                    if (matchesSearch && matchesCategory) {
+                    if (matchesSearch && matchesCategory && matchesPrice) {
                         card.style.display = 'block';
                         count++;
                     } else {
@@ -275,6 +286,7 @@
                 // Map the URL query back to the sidebar text for activation
                 let mappedSidebarText = catQuery;
                 if (catQuery === 'Discount') mappedSidebarText = 'Discount Deals';
+                else if (catQuery === 'Near-Expiry') mappedSidebarText = 'Near Expiry';
                 else if (catQuery === 'Herbs') mappedSidebarText = 'Herbs & Spices';
 
                 // For simplified matching, if we get catQuery = Vegetables, the sidebar says "Vegetables".
@@ -305,6 +317,15 @@
             if (localSearchInput) {
                 localSearchInput.addEventListener('input', (e) => {
                     currentSearch = e.target.value;
+                    filterProducts();
+                });
+            }
+
+            // Listen to price slider
+            if (priceSlider) {
+                priceSlider.addEventListener('input', (e) => {
+                    currentMaxPrice = parseInt(e.target.value);
+                    priceValueLabel.textContent = `₹${currentMaxPrice}${currentMaxPrice === 500 ? '+' : ''}`;
                     filterProducts();
                 });
             }

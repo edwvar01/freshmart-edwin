@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/Footer.css">
     <link rel="stylesheet" href="css/FarmerDashboard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
 
 </head>
 
@@ -103,28 +103,35 @@
                                 <label>Weight / Quantity Label</label>
                                 <input type="text" name="weight" required placeholder="e.g. 1 kg, 1 Dozen, 500g">
                             </div>
-                        </div>
-
-                        <div class="input-block">
-                            <label>Product Image URL</label>
-                            <input type="url" name="image"
-                                value="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500" required
-                                placeholder="https://link-to-your-image.com/image.jpg">
-                            <p class="input-hint">For best results, use a square, well-lit photo of your product.</p>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="input-block">
-                                <label>Farm/Shop Name (Public)</label>
-                                <input type="text" name="farmer" value="Green Valley Farms" required>
+                            <div class="form-row" id="farmerExpiryRow" style="display: none;">
+                                <div class="input-block">
+                                    <label>Expiry Date (Required for Dairy)</label>
+                                    <input type="date" name="expiryDate" id="farmerExpiryDate">
+                                </div>
                             </div>
-                            <div class="input-block">
-                                <label>Location (Public)</label>
-                                <input type="text" name="farmLocation" value="Outskirts, Sector 62" required>
-                            </div>
-                        </div>
 
-                        <button type="submit" class="btn btn-primary submit-product-btn">Upload to Storefront</button>
+                            <div class="input-block">
+                                <label>Product Image URL</label>
+                                <input type="url" name="image"
+                                    value="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500" required
+                                    placeholder="https://link-to-your-image.com/image.jpg">
+                                <p class="input-hint">For best results, use a square, well-lit photo of your product.
+                                </p>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="input-block">
+                                    <label>Farm/Shop Name (Public)</label>
+                                    <input type="text" name="farmer" value="Green Valley Farms" required>
+                                </div>
+                                <div class="input-block">
+                                    <label>Location (Public)</label>
+                                    <input type="text" name="farmLocation" value="Outskirts, Sector 62" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary submit-product-btn">Upload to
+                                Storefront</button>
                     </form>
                 </div>
 
@@ -143,6 +150,18 @@
 
     <script>
         lucide.createIcons();
+
+        // Show/Hide expiry for farmers
+        const categorySelect = document.querySelector('select[name="category"]');
+        const expiryRow = document.getElementById('farmerExpiryRow');
+
+        categorySelect.addEventListener('change', () => {
+            if (categorySelect.value === 'Dairy') {
+                expiryRow.style.display = 'block';
+            } else {
+                expiryRow.style.display = 'none';
+            }
+        });
 
         // Farmer Product Upload Logic
         const uploadForm = document.getElementById('farmerUploadForm');
@@ -165,6 +184,7 @@
                     farmerName: form.get('farmer'),
                     farmLocation: form.get('farmLocation'),
                     seller: "Farmer", // Hardcoded per requirements
+                    expiryDate: form.get('category') === 'Dairy' ? form.get('expiryDate') : null,
                     status: "Pending"
                 };
 
