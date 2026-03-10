@@ -1,0 +1,93 @@
+.farmers-layout {
+    background-color: #f8fafc;
+}
+
+.farmers-hero {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.9) 0%, rgba(39, 174, 96, 0.95) 100%), url('https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&q=80') center/cover;
+    padding: 6rem 2rem;
+    text-align: center;
+    color: white;
+}
+
+.farmers-hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.farmers-hero .hero-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(5px);
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.farmers-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.farmers-hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.farmers-benefits {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 1000px;
+    margin: -3rem auto 4rem;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.benefit-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    flex: 1;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f1f5f9;
+}
+
+.benefit-icon {
+    width: 60px;
+    height: 60px;
+    background: #f1f5f9;
+    color: #2ECC71;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1.5rem;
+}
+
+.benefit-card h3 {
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.benefit-card p {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.farmers-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .farmers-benefits {
+        flex-direction: column;
+        margin-top: 2rem;
+    }
+}
