@@ -407,119 +407,7 @@
     border-color: #2ECC71;
 }
 
-/* Pantry Promo Section */
-.pantry-promo {
-    max-width: 1100px;
-    margin: 2rem auto 6rem;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border-radius: 30px;
-    padding: 4rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
 
-.pantry-promo::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(46, 204, 113, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-    border-radius: 50%;
-}
-
-.pantry-promo-content {
-    flex: 1;
-    position: relative;
-    z-index: 1;
-}
-
-.pantry-promo-content h2 {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 1.5rem;
-    line-height: 1.1;
-}
-
-.pantry-promo-content p {
-    color: #cbd5e1;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    max-width: 90%;
-}
-
-.promo-features {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.promo-features li {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: 1.05rem;
-    font-weight: 500;
-}
-
-.pantry-promo-image {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    position: relative;
-    z-index: 1;
-}
-
-.mockup-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 2rem;
-    width: 100%;
-    max-width: 350px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    transform: rotate(2deg);
-}
-
-.mockup-header {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.mockup-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    margin-bottom: 1rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.mockup-item.warning {
-    border-left: 4px solid #f59e0b;
-    background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-}
-
-.mockup-item span:last-child {
-    color: #cbd5e1;
-    font-size: 0.85rem;
-}
 
 /* Responsive */
 @media (max-width: 1024px) {
@@ -541,19 +429,7 @@
         justify-content: center;
     }
 
-    .pantry-promo {
-        flex-direction: column;
-        padding: 3rem 2rem;
-        text-align: center;
-    }
 
-    .promo-features {
-        align-items: center;
-    }
-
-    .pantry-promo-content p {
-        margin: 0 auto 2rem;
-    }
 }
 
 @media (max-width: 768px) {
