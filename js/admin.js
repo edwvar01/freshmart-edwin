@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize Products Manager
         initProductsManager();
         initOrdersManager();
+        initPendingProductsManager();
     }
 });
 
@@ -90,6 +91,15 @@ function getProducts() {
 
 function saveProducts(products) {
     localStorage.setItem('fm_admin_products', JSON.stringify(products));
+}
+
+function getPendingProducts() {
+    const pending = localStorage.getItem('fm_pending_products');
+    return pending ? JSON.parse(pending) : [];
+}
+
+function savePendingProducts(products) {
+    localStorage.setItem('fm_pending_products', JSON.stringify(products));
 }
 
 function initProductsManager() {
@@ -166,6 +176,9 @@ function initProductsManager() {
         renderProducts();
     });
 
+    // Make renderProducts globally available for other managers to call
+    window.renderAdminProductsTable = renderProducts;
+
     // Global scoping for onboard onclick events
     window.deleteProduct = (id) => {
         if (confirm('Are you sure you want to delete this product?')) {
@@ -188,6 +201,71 @@ function initProductsManager() {
 
         document.getElementById('modalTitle').innerText = 'Edit Product';
         modal.classList.add('active');
+    };
+}
+
+function initPendingProductsManager() {
+    const tbody = document.getElementById('pendingTableBody');
+    if (!tbody) return;
+
+    window.renderPendingProducts = () => {
+        const pending = getPendingProducts();
+        tbody.innerHTML = '';
+
+        if (pending.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--admin-text-light);">No pending products require approval.</td></tr>`;
+            return;
+        }
+
+        pending.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><img src="${p.image}" class="product-thumb" alt="product"></td>
+                <td><strong>${p.name}</strong><br><small style="color:var(--admin-text-light)">${p.weight}</small></td>
+                <td><span class="badge ${p.category === 'Vegetables' ? 'badge-success' : 'badge-warning'}">${p.category}</span></td>
+                <td>$${parseFloat(p.price).toFixed(2)}</td>
+                <td>${p.farmerName}</td>
+                <td>
+                    <button class="action-btn" style="color: #2ECC71;" onclick="approveProduct(${p.id})" title="Approve"><i data-lucide="check-circle" width="20" height="20"></i></button>
+                    <button class="action-btn delete-btn" onclick="rejectProduct(${p.id})" title="Reject"><i data-lucide="x-circle" width="20" height="20"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        lucide.createIcons();
+    };
+
+    renderPendingProducts();
+
+    window.approveProduct = (id) => {
+        if (confirm('Are you sure you want to approve this product for the storefront?')) {
+            const pending = getPendingProducts();
+            const product = pending.find(p => p.id === id);
+
+            if (product) {
+                // Remove from pending
+                savePendingProducts(pending.filter(p => p.id !== id));
+
+                // Add to approved products
+                const approved = getProducts();
+                // Ensure status is cleared or adjusted if used elsewhere
+                delete product.status;
+                approved.push(product);
+                saveProducts(approved);
+
+                // Update UIs
+                renderPendingProducts();
+                if (window.renderAdminProductsTable) window.renderAdminProductsTable();
+            }
+        }
+    };
+
+    window.rejectProduct = (id) => {
+        if (confirm('Are you sure you want to REJECT and delete this pending product?')) {
+            const pending = getPendingProducts().filter(p => p.id !== id);
+            savePendingProducts(pending);
+            renderPendingProducts();
+        }
     };
 }
 

@@ -24,6 +24,9 @@
             <li class="menu-item" data-tab="products">
                 <i data-lucide="package" width="20" height="20"></i> Manage Products
             </li>
+            <li class="menu-item" data-tab="pending">
+                <i data-lucide="clock" width="20" height="20"></i> Pending Approvals
+            </li>
             <li class="menu-item" data-tab="orders">
                 <i data-lucide="shopping-cart" width="20" height="20"></i> View Orders
             </li>
@@ -179,6 +182,32 @@
                         </thead>
                         <tbody id="ordersTableBody">
                             <!-- Mock orders injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Pending Approvals Tab -->
+            <section id="pending" class="tab-content">
+                <div class="section-header">
+                    <h2>Pending Farmer Products</h2>
+                    <p style="color: var(--admin-text-light);">Review and verify products submitted by local farmers
+                        before they go live.</p>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Submitted By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingTableBody">
+                            <!-- Pending products injected by JS -->
                         </tbody>
                     </table>
                 </div>

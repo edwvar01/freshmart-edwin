@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="css/FarmerDashboard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <div class="page-wrapper">
         <!-- Navbar -->
@@ -24,7 +26,8 @@
                 </div>
 
                 <div class="navbar-links desktop-links">
-                    <a href="farmer-dashboard.html" class="nav-link" style="color: var(--primary); font-weight: 600;">Dashboard</a>
+                    <a href="farmer-dashboard.html" class="nav-link"
+                        style="color: var(--primary); font-weight: 600;">Dashboard</a>
                     <a href="products.html" class="nav-link">Storefront</a>
                 </div>
 
@@ -46,14 +49,16 @@
 
                 <div class="dashboard-stats">
                     <div class="stat-card">
-                        <div class="stat-icon"><i data-lucide="activity" width="24" height="24" color="#f59e0b"></i></div>
+                        <div class="stat-icon"><i data-lucide="activity" width="24" height="24" color="#f59e0b"></i>
+                        </div>
                         <div>
                             <p class="stat-title">Total Sales This Week</p>
                             <h3 class="stat-value">₹4,250</h3>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon"><i data-lucide="package-open" width="24" height="24" color="#3b82f6"></i></div>
+                        <div class="stat-icon"><i data-lucide="package-open" width="24" height="24" color="#3b82f6"></i>
+                        </div>
                         <div>
                             <p class="stat-title">Active Inventory</p>
                             <h3 class="stat-value">8 Items</h3>
@@ -66,7 +71,7 @@
                         <h2><i data-lucide="plus" width="24" height="24"></i> Add New Product</h2>
                     </div>
 
-                    <form class="upload-form" onsubmit="alert('Product successfully uploaded to marketplace!'); window.location.href='products.html'; return false;">
+                    <form id="farmerUploadForm" class="upload-form">
                         <div class="form-row">
                             <div class="input-block">
                                 <label>Product Name</label>
@@ -97,7 +102,9 @@
 
                         <div class="input-block">
                             <label>Product Image URL</label>
-                            <input type="url" name="image" value="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500" required placeholder="https://link-to-your-image.com/image.jpg">
+                            <input type="url" name="image"
+                                value="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500" required
+                                placeholder="https://link-to-your-image.com/image.jpg">
                             <p class="input-hint">For best results, use a square, well-lit photo of your product.</p>
                         </div>
 
@@ -131,6 +138,40 @@
 
     <script>
         lucide.createIcons();
+
+        // Farmer Product Upload Logic
+        const uploadForm = document.getElementById('farmerUploadForm');
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // Get pending products or initialize empty array
+                const pendingProducts = JSON.parse(localStorage.getItem('fm_pending_products')) || [];
+
+                // Create new product object
+                const form = new FormData(uploadForm);
+                const newProduct = {
+                    id: Date.now(), // Generate unique ID
+                    name: form.get('name'),
+                    price: parseFloat(form.get('price')),
+                    category: form.get('category'),
+                    weight: form.get('weight'),
+                    image: form.get('image'),
+                    farmerName: form.get('farmer'),
+                    farmLocation: form.get('farmLocation'),
+                    seller: "Farmer", // Hardcoded per requirements
+                    status: "Pending"
+                };
+
+                // Add to array and save back to local storage
+                pendingProducts.push(newProduct);
+                localStorage.setItem('fm_pending_products', JSON.stringify(pendingProducts));
+
+                alert('Your product has been sent to the Admin for approval! It will appear on the storefront once verified.');
+                uploadForm.reset();
+            });
+        }
     </script>
 </body>
+
 </html>
