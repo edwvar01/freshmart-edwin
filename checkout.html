@@ -62,7 +62,7 @@
                         <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address
                         </h2>
                         <form id="checkout-form" class="checkout-form"
-                            onsubmit="event.preventDefault(); localStorage.setItem('fm_has_order', 'true'); window.location.href='order-success.html';">
+                            onsubmit="window.processCheckout(event);">
                             <div class="form-row">
                                 <div class="input-block">
                                     <label>Full Name</label>
@@ -178,6 +178,7 @@
             const platformFee = 5;
 
             const itemsContainer = document.getElementById('summaryItemsContainer');
+            window.currentOrderItems = [];
 
             if (productId) {
                 // User is doing a direct "Buy Now" for a specific item
@@ -188,6 +189,14 @@
                 if (product) {
                     const itemTotal = parseFloat(product.price) * qty;
                     subtotal = itemTotal;
+
+                    window.currentOrderItems.push({
+                        name: product.name,
+                        image: product.image,
+                        price: product.price,
+                        qty: qty,
+                        total: itemTotal
+                    });
 
                     document.getElementById('summaryTitle').innerText = `Order Summary (${qty} items)`;
                     itemsContainer.innerHTML = `
@@ -206,6 +215,12 @@
             } else {
                 // Dummy fallback cart if they just navigated to checkout directly
                 subtotal = 190.00;
+                
+                window.currentOrderItems = [
+                    { name: 'Fresh Organic Carrots', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80', price: 60.00, qty: 1, total: 60.00 },
+                    { name: 'Fresh Cow Milk', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&q=80', price: 65.00, qty: 2, total: 130.00 }
+                ];
+
                 document.getElementById('summaryTitle').innerText = `Order Summary (3 items)`;
                 itemsContainer.innerHTML = `
                     <div class="mini-cart-item">
@@ -233,6 +248,15 @@
             const total = subtotal + deliveryFee + platformFee;
             document.getElementById('summaryTotal').innerText = `₹${total.toFixed(2)}`;
         });
+
+        window.processCheckout = function(event) {
+            event.preventDefault();
+            localStorage.setItem('fm_has_order', 'true');
+            if (window.currentOrderItems && window.currentOrderItems.length > 0) {
+                localStorage.setItem('fm_order_items', JSON.stringify(window.currentOrderItems));
+            }
+            window.location.href = 'order-success.html';
+        };
     </script>
 </body>
 
