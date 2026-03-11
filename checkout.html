@@ -61,8 +61,8 @@
                     <div class="checkout-section">
                         <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address
                         </h2>
-                        <form id="checkout-form" action="orders.html" class="checkout-form"
-                            onsubmit="alert('Order Placed Successfully via Cash on Delivery!'); return true;">
+                        <form id="checkout-form" class="checkout-form"
+                            onsubmit="event.preventDefault(); localStorage.setItem('fm_has_order', 'true'); window.location.href='order-success.html';">
                             <div class="form-row">
                                 <div class="input-block">
                                     <label>Full Name</label>

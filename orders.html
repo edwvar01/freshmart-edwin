@@ -54,8 +54,9 @@
 
         <main class="main-content order-layout">
             <div class="order-container">
-                <div class="order-header">
-                    <div>
+                <div id="activeOrderContent" style="display: none;">
+                    <div class="order-header">
+                        <div>
                         <h1 class="page-title">Order #FRSM-8924</h1>
                         <p class="order-date">Placed on March 10, 2026 at 10:45 AM</p>
                     </div>
@@ -64,80 +65,18 @@
                     </div>
                 </div>
 
-                <div class="tracking-card">
-                    <h2 class="tracking-title">Tracking Status</h2>
-
-                    <div class="timeline-container">
-                        <!-- Step 1 : Confirmed -->
-                        <div class="timeline-step completed">
-                            <div class="step-icon">
-                                <i data-lucide="check-circle-2" width="24" height="24"></i>
-                            </div>
-                            <div class="step-content">
-                                <h3>Order Confirmed</h3>
-                                <p>10:45 AM - Your order has been received by the local farmers.</p>
-                            </div>
-                        </div>
-
-                        <!-- Step 2 : Packed -->
-                        <div class="timeline-step completed">
-                            <div class="step-icon">
-                                <i data-lucide="package" width="24" height="24"></i>
-                            </div>
-                            <div class="step-content">
-                                <h3>Packed & Quality Checked</h3>
-                                <p>11:30 AM - Vegetables passed the Freshness Verification scan.</p>
-                                <div class="verification-photo">
-                                    <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=150&q=80"
-                                        alt="Quality Check">
-                                    <span class="photo-label">Verified Fresh ✔️</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 3 : Out for Delivery -->
-                        <div class="timeline-step active">
-                            <div class="step-icon pulse">
-                                <i data-lucide="truck" width="24" height="24"></i>
-                            </div>
-                            <div class="step-content">
-                                <h3>Out for Delivery</h3>
-                                <p>12:15 PM - Driver picked up your insulated bag. Arriving soon.</p>
-                            </div>
-                        </div>
-
-                        <!-- Step 4 : Delivered -->
-                        <div class="timeline-step pending">
-                            <div class="step-icon">
-                                <i data-lucide="map-pin" width="24" height="24"></i>
-                            </div>
-                            <div class="step-content">
-                                <h3>Delivered</h3>
-                                <p>Estimated arrival by 1:00 PM</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="tracking-card" style="text-align: center; padding: 3rem 1.5rem;">
+                    <i data-lucide="check-circle-2" width="64" height="64" style="color: #2ECC71; margin-bottom: 1rem;"></i>
+                    <h2 class="tracking-title" style="margin-bottom: 0.5rem; border: none; padding: 0;">Order Confirmed</h2>
+                    <p style="color: #64748b; font-size: 1.1rem;">Your order is confirmed and will be arriving soon.</p>
+                </div>
                 </div>
 
-                <div class="driver-card">
-                    <div class="driver-info">
-                        <div class="driver-avatar">
-                            <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=100&q=80"
-                                alt="Driver">
-                        </div>
-                        <div>
-                            <h3>Rahul S.</h3>
-                            <p>Delivery Partner • 4.9 ★</p>
-                        </div>
-                    </div>
-                    <div class="driver-actions">
-                        <button class="action-btn call-btn">
-                            <i data-lucide="phone" width="20" height="20"></i> Call
-                        </button>
-                        <button class="action-btn track-btn">
-                            <i data-lucide="navigation" width="20" height="20"></i> Live Map
-                        </button>
-                    </div>
+                <div id="emptyOrderContent" style="display: none; text-align: center; padding: 4rem 2rem; color: #64748b;">
+                    <i data-lucide="package-x" width="60" height="60" style="margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <h2>No Active Orders</h2>
+                    <p style="margin: 1rem 0 2rem;">You haven't placed any orders yet.</p>
+                    <a href="products.html" class="btn btn-primary" style="display: inline-flex; text-decoration: none; padding: 1rem 2rem; border-radius: 12px; background: #2ECC71; color: white; font-weight: 600;">Start Shopping</a>
                 </div>
             </div>
         </main>
@@ -154,6 +93,14 @@
 
     <script>
         lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', () => {
+            const hasOrder = localStorage.getItem('fm_has_order') === 'true';
+            if (hasOrder) {
+                document.getElementById('activeOrderContent').style.display = 'block';
+            } else {
+                document.getElementById('emptyOrderContent').style.display = 'block';
+            }
+        });
     </script>
 </body>
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshMart - Order Successful</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { margin: 0; padding: 0; background: var(--bg-gradient); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .success-card { background: var(--glass-bg); backdrop-filter: blur(16px); padding: 4rem 2rem; border-radius: 24px; text-align: center; box-shadow: var(--glass-shadow); max-width: 500px; width: 90%; animation: fadeUp 0.5s ease-out forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .success-icon { width: 100px; height: 100px; background: #abebc6; color: #27AE60; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; }
+        .success-card h1 { color: var(--text-dark); margin-bottom: 1rem; font-size: 2.2rem; }
+        .success-card p { color: var(--text-light); margin-bottom: 2.5rem; font-size: 1.1rem; line-height: 1.6; }
+        .btn-primary { background: var(--primary); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; border: none; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="success-icon">
+            <i data-lucide="check" width="50" height="50"></i>
+        </div>
+        <h1>Order Placed Successfully!</h1>
+        <p>Thank you for choosing FreshMart! Your order has been placed and confirmed. Your fresh groceries will be on their way soon.</p>
+        <a href="orders.html" class="btn-primary">
+            Track My Order <i data-lucide="arrow-right" width="20" height="20"></i>
+        </a>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
