@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="css/Footer.css">
     <link rel="stylesheet" href="css/Checkout.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-
 </head>
 
 <body>
@@ -40,7 +38,7 @@
                 <div class="navbar-actions">
                     <a href="cart.html" class="nav-action-btn cart-btn">
                         <i data-lucide="shopping-cart" width="24" height="24"></i>
-                        <span class="cart-badge">2</span>
+                        <span class="cart-badge" id="cart-badge-count">0</span>
                     </a>
                     <a href="index.html" class="nav-action-btn user-btn desktop-user">
                         <i data-lucide="user" width="24" height="24"></i>
@@ -61,8 +59,7 @@
                     <div class="checkout-section">
                         <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address
                         </h2>
-                        <form id="checkout-form" class="checkout-form"
-                            onsubmit="event.preventDefault(); localStorage.setItem('fm_has_order', 'true'); window.location.href='order-success.html';">
+                        <form id="checkout-form" class="checkout-form">
                             <div class="form-row">
                                 <div class="input-block">
                                     <label>Full Name</label>
@@ -165,75 +162,102 @@
     </div>
 
     <script>
-        lucide.createIcons();
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = parseInt(urlParams.get('buy_now'));
-            let qty = parseInt(urlParams.get('qty'));
-            if (!qty || qty < 1) qty = 1;
-
-            let subtotal = 0;
-            const deliveryFee = 20;
-            const platformFee = 5;
-
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.lucide) window.lucide.createIcons();
+            
             const itemsContainer = document.getElementById('summaryItemsContainer');
+            
+            const userJson = localStorage.getItem('fm_user');
+            let currentUser = null;
+            let cartKey = null;
+            let cart = [];
 
-            if (productId) {
-                // User is doing a direct "Buy Now" for a specific item
-                let prodsStr = localStorage.getItem('fm_admin_products');
-                let products = prodsStr ? JSON.parse(prodsStr) : [];
-                const product = products.find(p => p.id === productId);
-
-                if (product) {
-                    const itemTotal = parseFloat(product.price) * qty;
-                    subtotal = itemTotal;
-
-                    document.getElementById('summaryTitle').innerText = `Order Summary (${qty} items)`;
-                    itemsContainer.innerHTML = `
-                        <div class="mini-cart-item">
-                            <div class="mini-item-info">
-                                <span class="mini-item-qty">${qty}x</span>
-                                <span class="mini-item-name">${product.name}</span>
-                            </div>
-                            <span class="mini-item-price">₹${itemTotal.toFixed(2)}</span>
-                        </div>
-                    `;
-                } else {
-                    itemsContainer.innerHTML = `<p style="color:red">Item not found.</p>`;
-                }
-
-            } else {
-                // Dummy fallback cart if they just navigated to checkout directly
-                subtotal = 190.00;
-                document.getElementById('summaryTitle').innerText = `Order Summary (3 items)`;
-                itemsContainer.innerHTML = `
-                    <div class="mini-cart-item">
-                        <div class="mini-item-info">
-                            <span class="mini-item-qty">1x</span>
-                            <span class="mini-item-name">Fresh Organic Carrots</span>
-                        </div>
-                        <span class="mini-item-price">₹60.00</span>
-                    </div>
-                    <div class="mini-cart-item">
-                        <div class="mini-item-info">
-                            <span class="mini-item-qty">2x</span>
-                            <span class="mini-item-name">Fresh Cow Milk</span>
-                        </div>
-                        <span class="mini-item-price">₹130.00</span>
-                    </div>
-                `;
+            if (userJson) {
+                currentUser = JSON.parse(userJson);
+                cartKey = 'fm_cart_' + currentUser.name;
+                cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                
+                // Prefill form
+                document.querySelector('input[name="fullName"]').value = currentUser.name;
             }
 
-            // Calculate totals
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `<div style="text-align:center; padding: 2rem; color: #94a3b8;">Your cart is empty. Please add items before checking out.</div>`;
+                document.querySelector('.place-order-btn').disabled = true;
+                document.querySelector('.place-order-btn').style.opacity = '0.5';
+                document.getElementById('summaryTitle').innerText = `Order Summary (0 items)`;
+                return;
+            }
+
+            // Render Cart
+            itemsContainer.innerHTML = '';
+            let subtotal = 0;
+            let totalItemsCount = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.qty;
+                subtotal += itemTotal;
+                totalItemsCount += item.qty;
+                
+                itemsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="mini-cart-item">
+                        <div class="mini-item-info">
+                            <span class="mini-item-qty">${item.qty}x</span>
+                            <span class="mini-item-name">${item.name}</span>
+                        </div>
+                        <span class="mini-item-price">₹${itemTotal.toFixed(2)}</span>
+                    </div>
+                `);
+            });
+
+            document.getElementById('summaryTitle').innerText = `Order Summary (${totalItemsCount} items)`;
+
+            const platformFee = 5;
+            const deliveryFee = subtotal <= 300 ? 20 : 0;
+            const total = subtotal + deliveryFee + platformFee;
+
             document.getElementById('summarySubtotal').innerText = `₹${subtotal.toFixed(2)}`;
             document.getElementById('summaryDelivery').innerText = `₹${deliveryFee.toFixed(2)}`;
             document.getElementById('summaryPlatform').innerText = `₹${platformFee.toFixed(2)}`;
-
-            const total = subtotal + deliveryFee + platformFee;
             document.getElementById('summaryTotal').innerText = `₹${total.toFixed(2)}`;
+            
+            // Handle Form Submit
+            const form = document.getElementById('checkout-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fd = new FormData(form);
+                const customerName = currentUser ? currentUser.name : fd.get('fullName');
+                
+                const activeCart = cartKey ? (JSON.parse(localStorage.getItem(cartKey)) || []) : [];
+                const orderData = {
+                    customer: customerName,
+                    date: new Date().toISOString().split('T')[0],
+                    status: 'Processing',
+                    total: total,
+                    badgeClass: 'badge-warning',
+                    items: activeCart
+                };
+                
+                try {
+                    await fetch('http://localhost:5000/api/orders', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(orderData)
+                    });
+                    
+                    // Clear the cart!
+                    if (cartKey) {
+                        localStorage.removeItem(cartKey);
+                    }
+                    
+                    localStorage.setItem('fm_has_order', 'true');
+                    window.location.href = 'order-success.html';
+                } catch(err) {
+                    alert("Order placement failed! Make sure the backend Server is running.");
+                }
+            });
         });
     </script>
+    <script src="js/auth-ui.js"></script>
 </body>
-
 </html>

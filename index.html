@@ -48,7 +48,7 @@
                 </div>
 
                 <!-- Login Form -->
-                <form class="auth-form active" id="form-login" action="home.html">
+                <form class="auth-form active" id="form-login">
                     <h2>Welcome Back</h2>
                     <p class="subtitle">Enter your details to access your account.</p>
 
@@ -57,10 +57,11 @@
                         <input type="text" placeholder="Email or Phone Number" required>
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-group" style="margin-bottom: 0;">
                         <i data-lucide="lock" class="input-icon" width="20" height="20"></i>
                         <input type="password" placeholder="Password" required>
                     </div>
+                    <div id="login-error" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 0.5rem; text-align: left;">Invalid credentials. Please try again.</div>
 
                     <div class="form-options">
                         <label class="checkbox-container">
@@ -78,7 +79,7 @@
                 </form>
 
                 <!-- Sign Up Form -->
-                <form class="auth-form" id="form-signup" action="home.html">
+                <form class="auth-form" id="form-signup">
                     <h2>Create Account</h2>
                     <p class="subtitle">Join us to support local farmers.</p>
 
@@ -137,7 +138,92 @@
                 formSignup.classList.add('active');
             }
         }
+        
+        const loginForm = document.getElementById('form-login');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const inputs = loginForm.querySelectorAll('input');
+                const username = inputs[0].value;
+                const password = inputs[1].value;
+                const errorDiv = document.getElementById('login-error');
+                errorDiv.style.display = 'none';
+
+                try {
+                    const res = await fetch('http://localhost:5000/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password, type: 'customer' })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const profiles = JSON.parse(localStorage.getItem('fm_profiles') || '{}');
+                        const displayName = profiles[username] || username.split('@')[0];
+                        localStorage.setItem('fm_user', JSON.stringify({ name: displayName, email: username, role: data.role, token: data.token }));
+                        window.location.href = 'home.html';
+                    } else {
+                        errorDiv.innerText = "Invalid password or username.";
+                        errorDiv.style.display = 'block';
+                    }
+                } catch(err) {
+                    errorDiv.innerText = "Server error. Please ensure the backend is running.";
+                    errorDiv.style.display = 'block';
+                }
+            });
+        }
+        
+        const signupForm = document.getElementById('form-signup');
+        if (signupForm) {
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const inputs = signupForm.querySelectorAll('input');
+                const fullName = inputs[0].value;
+                const email = inputs[1].value;
+                const password = signupForm.querySelector('input[type="password"]').value;
+
+                try {
+                    const res = await fetch('http://localhost:5000/api/auth/signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: email, password, type: 'customer' })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        const profiles = JSON.parse(localStorage.getItem('fm_profiles') || '{}');
+                        profiles[email] = fullName;
+                        localStorage.setItem('fm_profiles', JSON.stringify(profiles));
+
+                        const overlay = document.getElementById('success-overlay');
+                        overlay.classList.add('show');
+                        
+                        setTimeout(() => {
+                            overlay.classList.remove('show');
+                            signupForm.reset();
+                            toggleForm(true); // Switch to login form
+                        }, 2500);
+                    } else {
+                        alert(data.message || "Error creating account.");
+                    }
+                } catch(err) {
+                    alert("Server error. Please ensure the backend is running.");
+                }
+            });
+        }
     </script>
+
+    <div id="success-overlay" class="success-overlay">
+        <div class="success-checkmark">
+            <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
+            </div>
+        </div>
+        <h2>Account Created Successfully!</h2>
+    </div>
 </body>
 
 </html>

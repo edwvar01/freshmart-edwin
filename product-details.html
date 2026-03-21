@@ -78,10 +78,7 @@
 
                         <div id="detailBadges" style="margin-bottom: 1rem;"></div>
 
-                        <div class="detail-rating">
-                            <span class="stars">★★★★★</span>
-                            <span class="rating-value">4.8 Rating</span>
-                        </div>
+                        <!-- Ratings successfully removed -->
 
                         <div class="detail-price-box" id="detailPriceBox">
                             <span id="detailPrice" class="detail-price">₹--</span>
@@ -99,8 +96,6 @@
                             </div>
                             <div>
                                 <h4 id="detailFarmerName">Loading...</h4>
-                                <p><i data-lucide="map-pin" width="14" height="14"></i> <span
-                                        id="detailFarmerLocation">Verified Location</span></p>
                             </div>
                         </div>
 
@@ -156,9 +151,9 @@
     <script>
         lucide.createIcons();
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const productId = parseInt(urlParams.get('id'));
+            const productId = urlParams.get('id');
 
             if (!productId) {
                 // No ID provided, go back or to products
@@ -166,12 +161,12 @@
                 return;
             }
 
-            // Fetch from local storage
-            let prodsStr = localStorage.getItem('fm_admin_products');
-            let products = prodsStr ? JSON.parse(prodsStr) : [];
-            const product = products.find(p => p.id === productId);
-
-            if (!product) {
+            let product;
+            try {
+                const res = await fetch(`http://localhost:5000/api/products/${productId}`);
+                if (!res.ok) throw new Error();
+                product = await res.json();
+            } catch(e) {
                 alert('Product not found!');
                 window.location.href = 'products.html';
                 return;
@@ -186,18 +181,25 @@
             document.getElementById('detailWeight').innerText = product.weight || '1 unit';
             document.getElementById('detailFarmerName').innerText = product.farmerName || product.seller || 'FreshMart Verified';
 
+            if (product.mfdDate) {
+                const mfdBadge = `
+                    <span class="badge" style="background:#e0f2fe; color:#0284c7; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight:bold; font-size:0.8rem; margin-right: 0.5rem; display:inline-block; margin-bottom: 0.5rem;">
+                        <i data-lucide="package" width="14" height="14" style="vertical-align:middle; margin-right:4px;"></i> MFD: ${product.mfdDate}
+                    </span>
+                 `;
+                document.getElementById('detailBadges').insertAdjacentHTML('beforeend', mfdBadge);
+            }
+
             if (product.expiryDate) {
                 const expiryBadge = `
-                    <span class="badge" style="background:#fee2e2; color:#b91c1c; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight:bold; font-size:0.8rem; margin-right: 0.5rem;">
+                    <span class="badge" style="background:#fee2e2; color:#b91c1c; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight:bold; font-size:0.8rem; margin-right: 0.5rem; display:inline-block; margin-bottom: 0.5rem;">
                         <i data-lucide="calendar" width="14" height="14" style="vertical-align:middle; margin-right:4px;"></i> Expires: ${product.expiryDate}
                     </span>
                  `;
                 document.getElementById('detailBadges').insertAdjacentHTML('beforeend', expiryBadge);
             }
 
-            if (product.farmLocation) {
-                document.getElementById('detailFarmerLocation').innerText = product.farmLocation;
-            }
+            // Farmer location removed
 
             // Pricing logic
             if (product.isDiscount && product.originalPrice) {
@@ -219,7 +221,26 @@
             const addBtn = document.querySelector('.add-to-cart-large');
             if (addBtn) {
                 addBtn.onclick = () => {
-                    const qty = document.getElementById('qty').innerText;
+                    const qty = parseInt(document.getElementById('qty').innerText) || 1;
+                    const userJson = localStorage.getItem('fm_user');
+                    if (!userJson) {
+                        alert('Please log in to add items to your cart.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    const user = JSON.parse(userJson);
+                    const cartKey = 'fm_cart_' + user.name;
+                    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                    const pId = product._id || product.id;
+                    const idx = cart.findIndex(item => (item._id || item.id) === pId);
+                    if (idx > -1) {
+                        cart[idx].qty += qty;
+                    } else {
+                        product.qty = qty;
+                        cart.push(product);
+                    }
+                    localStorage.setItem(cartKey, JSON.stringify(cart));
+                    if (window.updateCartBadge) window.updateCartBadge();
                     alert(`${qty}x ${product.name} added to cart!`);
                 };
             }
@@ -228,9 +249,26 @@
             const buyBtn = document.querySelector('.buy-now-large');
             if (buyBtn) {
                 buyBtn.onclick = () => {
-                    const qty = document.getElementById('qty').innerText;
-                    // Redirect to checkout with specific product + qty
-                    window.location.href = `checkout.html?buy_now=${product.id}&qty=${qty}`;
+                    const qty = parseInt(document.getElementById('qty').innerText) || 1;
+                    const userJson = localStorage.getItem('fm_user');
+                    if (!userJson) {
+                        alert('Please log in for Buy Now.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    const user = JSON.parse(userJson);
+                    const cartKey = 'fm_cart_' + user.name;
+                    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                    const pId = product._id || product.id;
+                    const idx = cart.findIndex(item => (item._id || item.id) === pId);
+                    if (idx > -1) {
+                        cart[idx].qty += qty;
+                    } else {
+                        product.qty = qty;
+                        cart.push(product);
+                    }
+                    localStorage.setItem(cartKey, JSON.stringify(cart));
+                    window.location.href = 'checkout.html';
                 };
             }
         });

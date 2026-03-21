@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="css/Footer.css">
     <link rel="stylesheet" href="css/Cart.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-
 </head>
 
 <body>
@@ -40,7 +38,7 @@
                 <div class="navbar-actions">
                     <a href="cart.html" class="nav-action-btn cart-btn">
                         <i data-lucide="shopping-cart" width="24" height="24"></i>
-                        <span class="cart-badge" id="cart-badge-count">2</span>
+                        <span class="cart-badge" id="cart-badge-count">0</span>
                     </a>
                     <a href="index.html" class="nav-action-btn user-btn desktop-user">
                         <i data-lucide="user" width="24" height="24"></i>
@@ -56,69 +54,13 @@
             <div class="cart-container">
 
                 <div class="cart-main">
-                    <h1 class="page-title">Shopping Cart (2 Items)</h1>
+                    <h1 class="page-title">Shopping Cart</h1>
 
                     <div class="cart-items-list" id="cart-items">
-
-                        <!-- Cart Item 1 -->
-                        <div class="cart-item" id="item-1">
-                            <img src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80"
-                                alt="Fresh Organic Carrots" class="cart-item-img">
-
-                            <div class="cart-item-details">
-                                <h3>Fresh Organic Carrots</h3>
-                                <div class="cart-item-farmer">
-                                    <i data-lucide="shield-check" width="14" height="14" class="verified-icon"></i>
-                                    <span>Green Valley Farms</span>
-                                </div>
-                            </div>
-
-                            <div class="cart-item-qty">
-                                <button class="qty-btn" onclick="updateQty('item-1', -1)">-</button>
-                                <span class="qty-display">1</span>
-                                <button class="qty-btn" onclick="updateQty('item-1', 1)">+</button>
-                            </div>
-
-                            <div class="cart-item-price" data-price="60">
-                                ₹<span class="price-display">60</span>
-                            </div>
-
-                            <button class="cart-item-remove" onclick="removeItem('item-1')">
-                                <i data-lucide="trash-2" width="20" height="20"></i>
-                            </button>
-                        </div>
-
-                        <!-- Cart Item 2 -->
-                        <div class="cart-item" id="item-2">
-                            <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&q=80"
-                                alt="Fresh Cow Milk" class="cart-item-img">
-
-                            <div class="cart-item-details">
-                                <h3>Fresh Cow Milk</h3>
-                                <div class="cart-item-farmer">
-                                    <i data-lucide="shield-check" width="14" height="14" class="verified-icon"></i>
-                                    <span>Happy Cow Dairy</span>
-                                </div>
-                            </div>
-
-                            <div class="cart-item-qty">
-                                <button class="qty-btn" onclick="updateQty('item-2', -1)">-</button>
-                                <span class="qty-display">2</span>
-                                <button class="qty-btn" onclick="updateQty('item-2', 1)">+</button>
-                            </div>
-
-                            <div class="cart-item-price" data-price="65">
-                                ₹<span class="price-display">130</span>
-                            </div>
-
-                            <button class="cart-item-remove" onclick="removeItem('item-2')">
-                                <i data-lucide="trash-2" width="20" height="20"></i>
-                            </button>
-                        </div>
-
+                        <!-- Dynamically populated -->
                     </div>
 
-                    <div class="cart-delivery-promo" id="delivery-promo">
+                    <div class="cart-delivery-promo" id="delivery-promo" style="display:none;">
                         <div class="promo-icon">🚚</div>
                         <div>
                             <h4>Support Local Delivery</h4>
@@ -133,27 +75,27 @@
 
                     <div class="summary-row">
                         <span>Subtotal</span>
-                        <span>₹<span id="subtotal">190</span></span>
+                        <span>₹<span id="subtotal">0</span></span>
                     </div>
                     <div class="summary-row">
                         <span>Delivery Fee <span id="free-delivery-text"
                                 style="display:none; color: #2ECC71; font-size: 0.8rem;">(Free)</span></span>
-                        <span>₹<span id="delivery-fee">20</span></span>
+                        <span>₹<span id="delivery-fee">0</span></span>
                     </div>
                     <div class="summary-row">
                         <span>Platform Fee</span>
-                        <span>₹<span id="platform-fee">5</span></span>
+                        <span>₹<span id="platform-fee">0</span></span>
                     </div>
 
                     <div class="summary-divider"></div>
 
                     <div class="summary-row total-row">
                         <span>Total</span>
-                        <span>₹<span id="total-price">215</span></span>
+                        <span>₹<span id="total-price">0</span></span>
                     </div>
 
                     <button onclick="window.location.href='checkout.html'" class="btn btn-primary checkout-btn"
-                        id="btn-checkout">
+                        id="btn-checkout" disabled style="opacity:0.5; cursor:not-allowed;">
                         Proceed to Checkout <i data-lucide="arrow-right" width="20" height="20"
                             style="margin-left: 8px;"></i>
                     </button>
@@ -177,26 +119,93 @@
     </div>
 
     <script>
-        lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) window.lucide.createIcons();
+            loadCart();
+        });
 
-        function updateTotals() {
-            let subtotal = 0;
-            const items = document.querySelectorAll('.cart-item');
+        function getCartKey() {
+            const userJson = localStorage.getItem('fm_user');
+            if (userJson) {
+                return 'fm_cart_' + JSON.parse(userJson).name;
+            }
+            return null;
+        }
 
-            items.forEach(item => {
-                const pricePerQty = parseInt(item.querySelector('.cart-item-price').getAttribute('data-price'));
-                const qty = parseInt(item.querySelector('.qty-display').innerText);
-                const itemTotal = pricePerQty * qty;
-                item.querySelector('.price-display').innerText = itemTotal;
-                subtotal += itemTotal;
+        function loadCart() {
+            const cartKey = getCartKey();
+            if (!cartKey) {
+                renderEmptyCart("Please log in to view your cart.");
+                return;
+            }
+            
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            if (cart.length === 0) {
+                renderEmptyCart("Your cart is empty.");
+                return;
+            }
+
+            const cartContainer = document.getElementById('cart-items');
+            cartContainer.innerHTML = '';
+
+            cart.forEach((item, index) => {
+                const sellerName = item.farmerName || item.seller || "FreshMart Verified";
+                const html = `
+                    <div class="cart-item" id="cart-idx-${index}">
+                        ${item.image ? `<img src="${item.image}" alt="${item.name}" class="cart-item-img">` : '<div class="cart-item-img" style="background:#eee;"></div>'}
+                        <div class="cart-item-details">
+                            <h3>${item.name}</h3>
+                            <div class="cart-item-farmer">
+                                <i data-lucide="shield-check" width="14" height="14" class="verified-icon"></i>
+                                <span>${sellerName}</span>
+                            </div>
+                        </div>
+                        <div class="cart-item-qty">
+                            <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                            <span class="qty-display">${item.qty}</span>
+                            <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                        </div>
+                        <div class="cart-item-price" data-price="${item.price}">
+                            ₹<span class="price-display">${item.price * item.qty}</span>
+                        </div>
+                        <button class="cart-item-remove" onclick="removeItem(${index})">
+                            <i data-lucide="trash-2" width="20" height="20"></i>
+                        </button>
+                    </div>
+                `;
+                cartContainer.insertAdjacentHTML('beforeend', html);
             });
+
+            if (window.lucide) window.lucide.createIcons();
+            updateTotals();
+        }
+
+        function renderEmptyCart(msg) {
+            document.getElementById('cart-items').innerHTML = `
+                <div style="padding: 2rem; text-align: center; color: #64748b;">
+                    <h3>${msg}</h3>
+                    <a href="products.html" class="btn btn-primary" style="margin-top: 1rem; display: inline-block;">Start Shopping</a>
+                </div>
+            `;
+            updateTotals(true);
+        }
+
+        function updateTotals(isEmpty = false) {
+            let subtotal = 0;
+            const cartKey = getCartKey();
+            let totalItems = 0;
+            if (cartKey) {
+                const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+                subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
+            }
 
             document.getElementById('subtotal').innerText = subtotal;
 
             let deliveryFee = 0;
             let platformFee = 0;
 
-            if (items.length > 0) {
+            if (!isEmpty && subtotal > 0) {
                 platformFee = 5;
                 if (subtotal <= 300) {
                     deliveryFee = 20;
@@ -204,6 +213,10 @@
                 } else {
                     document.getElementById('free-delivery-text').style.display = 'inline';
                 }
+                document.getElementById('delivery-promo').style.display = 'flex';
+                document.getElementById('btn-checkout').disabled = false;
+                document.getElementById('btn-checkout').style.opacity = '1';
+                document.getElementById('btn-checkout').style.cursor = 'pointer';
             } else {
                 document.getElementById('delivery-promo').style.display = 'none';
                 document.getElementById('btn-checkout').disabled = true;
@@ -215,38 +228,35 @@
             document.getElementById('platform-fee').innerText = platformFee;
             document.getElementById('total-price').innerText = subtotal + deliveryFee + platformFee;
 
-            const totalItems = Array.from(items).reduce((acc, item) => acc + parseInt(item.querySelector('.qty-display').innerText), 0);
             document.querySelector('.page-title').innerText = `Shopping Cart (${totalItems} Items)`;
-            document.getElementById('cart-badge-count').innerText = totalItems;
+            if (window.updateCartBadge) window.updateCartBadge();
         }
 
-        function updateQty(itemId, change) {
-            const item = document.getElementById(itemId);
-            const qtyDisplay = item.querySelector('.qty-display');
-            let currentQty = parseInt(qtyDisplay.innerText);
-
-            if (currentQty + change > 0) {
-                qtyDisplay.innerText = currentQty + change;
-                updateTotals();
+        window.updateQty = function(index, change) {
+            const cartKey = getCartKey();
+            if (!cartKey) return;
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            if (cart[index]) {
+                if (cart[index].qty + change > 0) {
+                    cart[index].qty += change;
+                    localStorage.setItem(cartKey, JSON.stringify(cart));
+                    loadCart();
+                } else {
+                    // Remove if qty drops to 0
+                    window.removeItem(index);
+                }
             }
-        }
+        };
 
-        function removeItem(itemId) {
-            const item = document.getElementById(itemId);
-            item.remove();
-            updateTotals();
-
-            const remainingItems = document.querySelectorAll('.cart-item');
-            if (remainingItems.length === 0) {
-                document.getElementById('cart-items').innerHTML = `
-                    <div style="padding: 2rem; text-align: center; color: #64748b;">
-                        <h3>Your cart is empty.</h3>
-                        <a href="products.html" class="btn btn-primary" style="margin-top: 1rem; display: inline-block;">Start Shopping</a>
-                    </div>
-                `;
-            }
-        }
+        window.removeItem = function(index) {
+            const cartKey = getCartKey();
+            if (!cartKey) return;
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            cart.splice(index, 1);
+            localStorage.setItem(cartKey, JSON.stringify(cart));
+            loadCart();
+        };
     </script>
+    <script src="js/auth-ui.js"></script>
 </body>
-
 </html>

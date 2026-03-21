@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="css/Footer.css">
     <link rel="stylesheet" href="css/OrderTracking.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-
 </head>
 
 <body>
@@ -40,7 +38,7 @@
                 <div class="navbar-actions">
                     <a href="cart.html" class="nav-action-btn cart-btn">
                         <i data-lucide="shopping-cart" width="24" height="24"></i>
-                        <span class="cart-badge">0</span>
+                        <span class="cart-badge" id="cart-badge-count">0</span>
                     </a>
                     <a href="index.html" class="nav-action-btn user-btn desktop-user">
                         <i data-lucide="user" width="24" height="24"></i>
@@ -55,27 +53,14 @@
         <main class="main-content order-layout">
             <div class="order-container">
                 <div id="activeOrderContent" style="display: none;">
-                    <div class="order-header">
-                        <div>
-                        <h1 class="page-title">Order #FRSM-8924</h1>
-                        <p class="order-date">Placed on March 10, 2026 at 10:45 AM</p>
-                    </div>
-                    <div class="order-status-badge">
-                        Out for Delivery
-                    </div>
-                </div>
-
-                <div class="tracking-card" style="text-align: center; padding: 3rem 1.5rem;">
-                    <i data-lucide="check-circle-2" width="64" height="64" style="color: #2ECC71; margin-bottom: 1rem;"></i>
-                    <h2 class="tracking-title" style="margin-bottom: 0.5rem; border: none; padding: 0;">Order Confirmed</h2>
-                    <p style="color: #64748b; font-size: 1.1rem;">Your order is confirmed and will be arriving soon.</p>
-                </div>
+                    <h1 class="page-title" style="margin-bottom: 2rem;">Your Order History</h1>
+                    <div id="ordersListContainer"></div>
                 </div>
 
                 <div id="emptyOrderContent" style="display: none; text-align: center; padding: 4rem 2rem; color: #64748b;">
                     <i data-lucide="package-x" width="60" height="60" style="margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <h2>No Active Orders</h2>
-                    <p style="margin: 1rem 0 2rem;">You haven't placed any orders yet.</p>
+                    <h2 id="emptyMsgTitle">No Active Orders</h2>
+                    <p style="margin: 1rem 0 2rem;" id="emptyMsgDesc">You haven't placed any orders yet.</p>
                     <a href="products.html" class="btn btn-primary" style="display: inline-flex; text-decoration: none; padding: 1rem 2rem; border-radius: 12px; background: #2ECC71; color: white; font-weight: 600;">Start Shopping</a>
                 </div>
             </div>
@@ -92,16 +77,74 @@
     </div>
 
     <script>
-        lucide.createIcons();
-        document.addEventListener('DOMContentLoaded', () => {
-            const hasOrder = localStorage.getItem('fm_has_order') === 'true';
-            if (hasOrder) {
-                document.getElementById('activeOrderContent').style.display = 'block';
-            } else {
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.lucide) window.lucide.createIcons();
+            
+            const userJson = localStorage.getItem('fm_user');
+            if (!userJson) {
+                document.getElementById('emptyOrderContent').style.display = 'block';
+                document.getElementById('emptyMsgTitle').innerText = "Please Log In";
+                document.getElementById('emptyMsgDesc').innerText = "Log in to view your orders.";
+                return;
+            }
+            const user = JSON.parse(userJson);
+
+            try {
+                const res = await fetch(`http://localhost:5000/api/orders?user=${encodeURIComponent(user.name)}`);
+                const orders = await res.json();
+                
+                if (orders.length > 0) {
+                    const activeContent = document.getElementById('activeOrderContent');
+                    activeContent.style.display = 'block';
+                    const listContainer = document.getElementById('ordersListContainer');
+                    listContainer.innerHTML = '';
+                    
+                    orders.forEach(order => {
+                        const isDelivered = order.status === 'Delivered';
+                        const iconHtml = isDelivered 
+                            ? `<i data-lucide="package-check" width="48" height="48" style="color: #2ECC71;"></i>`
+                            : `<i data-lucide="package" width="48" height="48" style="color: #f59e0b;"></i>`;
+                        const msgTitle = isDelivered ? 'Product Delivered' : 'Processing Order';
+                        const msgDesc = isDelivered 
+                            ? 'Your products have been delivered successfully. Enjoy your fresh groceries!' 
+                            : 'Your order is confirmed and will be arriving soon.';
+                            
+                        const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : order.date;
+                        
+                        const orderCard = `
+                            <div class="tracking-card" style="margin-bottom: 1.5rem; text-align: left; padding: 1.5rem;">
+                                <div class="order-header" style="margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
+                                    <div>
+                                        <h2 style="font-size: 1.25rem; color: #1e293b; margin: 0 0 0.25rem;">Order ${order.id}</h2>
+                                        <p style="color: #64748b; font-size: 0.95rem; margin: 0;">Placed on ${dateStr} | Total: ₹${order.total.toFixed(2)}</p>
+                                    </div>
+                                    <div class="order-status-badge ${order.badgeClass || 'badge-warning'}">
+                                        ${order.status}
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                    <div style="background: ${isDelivered ? '#ecfdf5' : '#fef3c7'}; padding: 1rem; border-radius: 50%;">
+                                        ${iconHtml}
+                                    </div>
+                                    <div>
+                                        <h3 style="margin: 0 0 0.5rem; font-size: 1.2rem; color: #1e293b;">${msgTitle}</h3>
+                                        <p style="margin: 0; color: #64748b; font-size: 1rem;">${msgDesc}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        listContainer.insertAdjacentHTML('beforeend', orderCard);
+                    });
+                    if (window.lucide) window.lucide.createIcons();
+                } else {
+                    document.getElementById('emptyOrderContent').style.display = 'block';
+                }
+            } catch(err) {
+                console.error(err);
                 document.getElementById('emptyOrderContent').style.display = 'block';
             }
         });
     </script>
+    <script src="js/auth-ui.js"></script>
 </body>
-
 </html>
