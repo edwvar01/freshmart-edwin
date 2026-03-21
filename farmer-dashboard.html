@@ -30,7 +30,7 @@
                 <div class="navbar-links desktop-links">
                     <a href="farmer-dashboard.html" class="nav-link"
                         style="color: var(--primary); font-weight: 600;">Dashboard</a>
-                    <a href="products.html" class="nav-link">Storefront</a>
+                    <!-- <a href="products.html" class="nav-link">Storefront</a> removed -->
                 </div>
 
                 <div class="navbar-actions">
@@ -58,7 +58,7 @@
                         </div>
                         <div>
                             <p class="stat-title">Total Sales This Week</p>
-                            <h3 class="stat-value">₹4,250</h3>
+                            <h3 class="stat-value" id="farmerTotalSales">₹0</h3>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -103,18 +103,20 @@
                                 <label>Weight / Quantity Label</label>
                                 <input type="text" name="weight" required placeholder="e.g. 1 kg, 1 Dozen, 500g">
                             </div>
-                            <div class="form-row" id="farmerExpiryRow" style="display: none;">
+                            <div class="form-row" id="farmerDatesRow">
                                 <div class="input-block">
-                                    <label>Expiry Date (Required for Dairy)</label>
-                                    <input type="date" name="expiryDate" id="farmerExpiryDate">
+                                    <label>Manufacturing Date (MFD)</label>
+                                    <input type="date" name="mfdDate">
+                                </div>
+                                <div class="input-block">
+                                    <label>Expiry Date</label>
+                                    <input type="date" name="expiryDate" required>
                                 </div>
                             </div>
 
                             <div class="input-block">
-                                <label>Product Image URL</label>
-                                <input type="url" name="image"
-                                    value="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500" required
-                                    placeholder="https://link-to-your-image.com/image.jpg">
+                                <label>Product Image</label>
+                                <input type="file" name="image" accept="image/*" required>
                                 <p class="input-hint">For best results, use a square, well-lit photo of your product.
                                 </p>
                             </div>
@@ -130,13 +132,33 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary submit-product-btn">Upload to
-                                Storefront</button>
+                            <button type="submit" class="btn btn-primary submit-product-btn" style="border-radius:24px;">Upload Product</button>
                     </form>
                 </div>
 
-            </div>
-        </main>
+                    <div class="tracking-section" style="margin-top: 3rem;">
+                        <div class="upload-header">
+                            <h2><i data-lucide="list" width="24" height="24"></i> My Uploads Tracking</h2>
+                        </div>
+                        <div class="tracking-container" style="background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 4px 25px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                                <thead>
+                                    <tr style="text-align: left; border-bottom: 2px solid #f1f5f9; color: #64748b;">
+                                        <th style="padding: 1rem;">Product Segment</th>
+                                        <th style="padding: 1rem;">Category</th>
+                                        <th style="padding: 1rem;">Price</th>
+                                        <th style="padding: 1rem;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="farmerTrackingBody">
+                                    <tr><td colspan="4" style="text-align: center; padding: 2rem; color: #94a3b8;">Loading tracking data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
 
         <!-- Footer -->
         <footer class="footer">
@@ -149,19 +171,71 @@
     </div>
 
     <script>
+        
+        function loadMyUploads() {
+            const userJson = localStorage.getItem('fm_user');
+            if (!userJson) return;
+            const user = JSON.parse(userJson);
+            fetch('http://localhost:5000/api/products/farmer/' + encodeURIComponent(user.name))
+                .then(res => res.json())
+                .then(products => {
+                    const tbody = document.getElementById('farmerTrackingBody');
+                    tbody.innerHTML = '';
+                    if (products.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No products uploaded yet.</td></tr>';
+                        return;
+                    }
+                    products.forEach(p => {
+                        let statusColor = '#f59e0b';
+                        let statusText = 'Processing';
+                        if (p.status === 'approved') {
+                            statusColor = '#2ECC71';
+                            statusText = 'Approved';
+                        } else if (p.status === 'rejected') {
+                            statusColor = '#ef4444';
+                            statusText = 'Rejected';
+                        }
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                    <strong>${p.name}</strong>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">${p.category}</td>
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; font-weight: 600;">₹${p.price}</td>
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">
+                                <span style="background: ${statusColor}15; color: ${statusColor}; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">${statusText}</span>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+        function loadSales() {
+            const userJson = localStorage.getItem('fm_user');
+            if(!userJson) return;
+            const user = JSON.parse(userJson);
+            fetch('http://localhost:5000/api/orders/farmer/' + encodeURIComponent(user.name))
+                .then(res => res.json())
+                .then(data => {
+                    const el = document.getElementById('farmerTotalSales');
+                    if (el) el.innerText = '₹' + (data.totalSales || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2});
+                })
+                .catch(err => console.error("Sales fetch err", err));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMyUploads();
+            loadSales();
+        });
+
+        // Suppress original DOMContentLoaded
+        // lucide.createIcons();
         lucide.createIcons();
 
-        // Show/Hide expiry for farmers
-        const categorySelect = document.querySelector('select[name="category"]');
-        const expiryRow = document.getElementById('farmerExpiryRow');
-
-        categorySelect.addEventListener('change', () => {
-            if (categorySelect.value === 'Dairy') {
-                expiryRow.style.display = 'block';
-            } else {
-                expiryRow.style.display = 'none';
-            }
-        });
+        // Expiry logic securely overridden
 
         // Farmer Product Upload Logic
         const uploadForm = document.getElementById('farmerUploadForm');
@@ -169,34 +243,53 @@
             uploadForm.addEventListener('submit', (e) => {
                 e.preventDefault();
 
-                // Get pending products or initialize empty array
-                const pendingProducts = JSON.parse(localStorage.getItem('fm_pending_products')) || [];
-
                 // Create new product object
                 const form = new FormData(uploadForm);
-                const newProduct = {
-                    id: Date.now(), // Generate unique ID
-                    name: form.get('name'),
-                    price: parseFloat(form.get('price')),
-                    category: form.get('category'),
-                    weight: form.get('weight'),
-                    image: form.get('image'),
-                    farmerName: form.get('farmer'),
-                    farmLocation: form.get('farmLocation'),
-                    seller: "Farmer", // Hardcoded per requirements
-                    expiryDate: form.get('category') === 'Dairy' ? form.get('expiryDate') : null,
-                    status: "Pending"
-                };
+                form.append('seller', 'Farmer');
+                form.append('status', 'pending');
+                const userJson = localStorage.getItem('fm_user');
+                if (userJson) {
+                    const u = JSON.parse(userJson);
+                    form.append('uploader', u.name);
+                }
+                // Expiry pruning removed since it is enforced globally
 
-                // Add to array and save back to local storage
-                pendingProducts.push(newProduct);
-                localStorage.setItem('fm_pending_products', JSON.stringify(pendingProducts));
-
-                alert('Your product has been sent to the Admin for approval! It will appear on the storefront once verified.');
-                uploadForm.reset();
+                fetch('http://localhost:5000/api/products', {
+                    method: 'POST',
+                    body: form
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Upload failed');
+                    return data;
+                })
+                .then(data => {
+                    const overlay = document.getElementById('successOverlay');
+                    overlay.style.display = 'flex';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        uploadForm.reset();
+                        loadMyUploads();
+                    }, 2500);
+                })
+                .catch(err => {
+                    console.error('Error saving product:', err);
+                    alert('Failed to save product to the database.');
+                });
             });
         }
     </script>
+<script src="js/auth-ui.js"></script>
+    <div id="successOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; flex-direction: column; justify-content: center; align-items: center;">
+        <div class="success-animation">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
+        <h2 style="color: #2ECC71; margin-top: 20px; font-size: 2.5rem; font-weight: 800;">Upload Successful!</h2>
+        <p style="color: #64748b; font-size: 1.1rem;">Your product is now awaiting admin approval.</p>
+    </div>
 </body>
 
 </html>

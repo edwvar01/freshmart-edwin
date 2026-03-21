@@ -1,3 +1,43 @@
+window.showModernConfirm = function(title, message, type, onYes) {
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-confirm-overlay';
+    
+    const isSuccess = type === 'success';
+    const iconClass = isSuccess ? 'success' : '';
+    const btnClass = isSuccess ? 'success' : 'danger';
+    const lucideIcon = isSuccess ? 'check-circle' : 'alert-circle';
+    
+    overlay.innerHTML = `
+        <div class="custom-confirm-modal">
+            <div class="confirm-icon ${iconClass}"><i data-lucide="${lucideIcon}" width="32" height="32"></i></div>
+            <h3>${title}</h3>
+            <p>${message}</p>
+            <div class="confirm-actions">
+                <button class="confirm-btn no-btn">No, Cancel</button>
+                <button class="confirm-btn yes-btn ${btnClass}">Yes, Proceed</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    if (window.lucide) window.lucide.createIcons();
+    
+    setTimeout(() => {
+        overlay.classList.add('active');
+    }, 10);
+    
+    const close = () => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 300);
+    };
+    
+    overlay.querySelector('.no-btn').onclick = close;
+    overlay.querySelector('.yes-btn').onclick = () => {
+        close();
+        onYes();
+    };
+};
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // ----------------------------------------
@@ -6,17 +46,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('adminLoginForm');
 
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const user = document.getElementById('adminUsername').value;
             const pass = document.getElementById('adminPassword').value;
             const errorMsg = document.getElementById('loginError');
 
-            // Hardcoded Simple Admin Credentials
-            if (user === 'admin' && pass === 'admin123') {
-                sessionStorage.setItem('adminLoggedIn', 'true');
-                window.location.href = 'admin-dashboard.html';
-            } else {
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass, type: 'admin' })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    sessionStorage.setItem('adminToken', data.token);
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    errorMsg.style.display = 'block';
+                    setTimeout(() => errorMsg.style.display = 'none', 3000);
+                }
+            } catch(err) {
+                console.error("Login failed:", err);
+                errorMsg.innerText = "Server connection failed";
                 errorMsg.style.display = 'block';
                 setTimeout(() => errorMsg.style.display = 'none', 3000);
             }
@@ -36,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
             sessionStorage.removeItem('adminLoggedIn');
+            sessionStorage.removeItem('adminToken');
             window.location.href = 'admin-login.html';
         });
 
@@ -60,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Initialize Products Manager
+        // Initialize Managers
         initProductsManager();
         initOrdersManager();
         initPendingProductsManager();
@@ -68,38 +123,27 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ----------------------------------------
-// MOCK DATA & LOCALSTORAGE LOGIC
+// API CALLS LOGIC
 // ----------------------------------------
 
-const defaultProducts = [
-    { id: 1, name: "Organic Tomatoes", price: 2.99, category: "Vegetables", seller: "Farmer", image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=150&q=80" },
-    { id: 2, name: "Fresh Milk", price: 3.49, category: "Dairy", seller: "Store", image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=150&q=80" }
-];
-
-const mockOrders = [
-    { id: "ORD-001", customer: "John Doe", date: "2026-03-10", status: "Delivered", total: 45.90, badgeClass: "badge-success" },
-    { id: "ORD-002", customer: "Jane Smith", date: "2026-03-10", status: "Processing", total: 12.50, badgeClass: "badge-warning" },
-    { id: "ORD-003", customer: "Bob Wilson", date: "2026-03-09", status: "Cancelled", total: 104.20, badgeClass: "badge-danger" }
-];
-
-function getProducts() {
-    const prods = localStorage.getItem('fm_admin_products');
-    if (prods) return JSON.parse(prods);
-    localStorage.setItem('fm_admin_products', JSON.stringify(defaultProducts));
-    return defaultProducts;
+async function getProducts() {
+    try {
+        const res = await fetch('http://localhost:5000/api/products');
+        return await res.json();
+    } catch(err) {
+        console.error("Error fetching products", err);
+        return [];
+    }
 }
 
-function saveProducts(products) {
-    localStorage.setItem('fm_admin_products', JSON.stringify(products));
-}
-
-function getPendingProducts() {
-    const pending = localStorage.getItem('fm_pending_products');
-    return pending ? JSON.parse(pending) : [];
-}
-
-function savePendingProducts(products) {
-    localStorage.setItem('fm_pending_products', JSON.stringify(products));
+async function getPendingProducts() {
+    try {
+        const res = await fetch('http://localhost:5000/api/products/pending');
+        return await res.json();
+    } catch(err) {
+        console.error("Error fetching pending products", err);
+        return [];
+    }
 }
 
 function initProductsManager() {
@@ -111,18 +155,11 @@ function initProductsManager() {
     const categorySelect = document.getElementById('productCategory');
     const expiryGroup = document.getElementById('expiryGroup');
 
-    // Show/Hide expiry field based on category
-    categorySelect.addEventListener('change', () => {
-        if (categorySelect.value === 'Dairy') {
-            expiryGroup.style.display = 'block';
-        } else {
-            expiryGroup.style.display = 'none';
-        }
-    });
+    // Expiry Date is now globally applicable
 
     // Render Products Table
-    const renderProducts = () => {
-        const products = getProducts();
+    const renderProducts = async () => {
+        const products = await getProducts();
         tbody.innerHTML = '';
         products.forEach(p => {
             const tr = document.createElement('tr');
@@ -130,7 +167,7 @@ function initProductsManager() {
                 <td><img src="${p.image}" class="product-thumb" alt="product"></td>
                 <td><strong>${p.name}</strong>${p.expiryDate ? `<br><small style="color: #64748b;">Expires: ${p.expiryDate}</small>` : ''}</td>
                 <td><span class="badge ${p.category === 'Vegetables' ? 'badge-success' : 'badge-warning'}">${p.category}</span></td>
-                <td>$${parseFloat(p.price).toFixed(2)}</td>
+                <td>₹${parseFloat(p.price).toFixed(2)}</td>
                 <td>${p.seller}</td>
                 <td>
                     <button class="action-btn edit-btn" onclick="editProduct(${p.id})"><i data-lucide="edit" width="18" height="18"></i></button>
@@ -139,8 +176,8 @@ function initProductsManager() {
             `;
             tbody.appendChild(tr);
         });
-        lucide.createIcons();
-        updateDashboardStats();
+        if (window.lucide) lucide.createIcons();
+        updateDashboardStats(products.length);
     };
 
     // Initialize Rendering
@@ -160,67 +197,74 @@ function initProductsManager() {
     });
 
     // Form Submit (Add/Edit)
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('productId').value;
-        const products = getProducts();
+        const formData = new FormData(form);
+        formData.append('status', 'approved');
 
-        const newProduct = {
-            id: id ? parseInt(id) : Date.now(),
-            name: document.getElementById('productName').value,
-            price: document.getElementById('productPrice').value,
-            image: document.getElementById('productImage').value,
-            category: document.getElementById('productCategory').value,
-            seller: document.getElementById('productSeller').value,
-            expiryDate: document.getElementById('productCategory').value === 'Dairy' ? document.getElementById('productExpiry').value : null
-        };
-
-        if (id) {
-            // Edit existing
-            const index = products.findIndex(p => p.id === parseInt(id));
-            if (index !== -1) products[index] = newProduct;
-        } else {
-            // Add new
-            products.push(newProduct);
+        try {
+            let url = 'http://localhost:5000/api/products';
+            let method = 'POST';
+            if (id) {
+                url = `http://localhost:5000/api/products/${id}`;
+                method = 'PUT';
+            } else {
+                if(!document.getElementById('productImage').files.length) {
+                    alert("Please upload an image for new products.");
+                    return;
+                }
+            }
+            
+            const res = await fetch(url, {
+                method: method,
+                body: formData
+            });
+            if(!res.ok) throw new Error(await res.text());
+            
+            modal.classList.remove('active');
+            renderProducts();
+        } catch (err) {
+            console.error("Error saving product:", err);
+            alert("Failed to save product.");
         }
-
-        saveProducts(products);
-        modal.classList.remove('active');
-        renderProducts();
     });
 
     // Make renderProducts globally available for other managers to call
     window.renderAdminProductsTable = renderProducts;
 
     // Global scoping for onboard onclick events
-    window.deleteProduct = (id) => {
-        if (confirm('Are you sure you want to delete this product?')) {
-            const products = getProducts().filter(p => p.id !== id);
-            saveProducts(products);
-            renderProducts();
-        }
+    window.deleteProduct = async (id) => {
+        showModernConfirm('Delete Product?', 'Are you sure you want to permanently delete this product?', 'danger', async () => {
+            try {
+                await fetch(`http://localhost:5000/api/products/${id}`, { method: 'DELETE' });
+                renderProducts();
+            } catch(err) {
+                console.error("Failed to delete", err);
+            }
+        });
     };
 
-    window.editProduct = (id) => {
-        const product = getProducts().find(p => p.id === id);
-        if (!product) return;
+    window.editProduct = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/products/${id}`);
+            const product = await res.json();
+            if (!product) return;
 
-        document.getElementById('productId').value = product.id;
-        document.getElementById('productName').value = product.name;
-        document.getElementById('productPrice').value = product.price;
-        document.getElementById('productImage').value = product.image;
-        document.getElementById('productCategory').value = product.category;
-        document.getElementById('productSeller').value = product.seller;
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.name || '';
+            document.getElementById('productPrice').value = product.price || '';
+            document.getElementById('productImage').value = ''; 
+            document.getElementById('productCategory').value = product.category || 'Vegetables';
+            if(document.getElementById('productMfd')) document.getElementById('productMfd').value = product.mfdDate || '';
+            if(document.getElementById('productExpiry')) document.getElementById('productExpiry').value = product.expiryDate || '';
+            document.getElementById('productSeller').value = product.seller || '';
 
-        if (product.category === 'Dairy') {
-            expiryGroup.style.display = 'block';
-            document.getElementById('productExpiry').value = product.expiryDate || '';
-        } else {
-            expiryGroup.style.display = 'none';
+            document.getElementById('modalTitle').innerText = 'Edit Product';
+            modal.classList.add('active');
+        } catch(err) {
+            console.error("Failed to load product for editing", err);
         }
-
-        document.getElementById('modalTitle').innerText = 'Edit Product';
-        modal.classList.add('active');
     };
 }
 
@@ -228,8 +272,8 @@ function initPendingProductsManager() {
     const tbody = document.getElementById('pendingTableBody');
     if (!tbody) return;
 
-    window.renderPendingProducts = () => {
-        const pending = getPendingProducts();
+    window.renderPendingProducts = async () => {
+        const pending = await getPendingProducts();
         tbody.innerHTML = '';
 
         if (pending.length === 0) {
@@ -241,10 +285,10 @@ function initPendingProductsManager() {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><img src="${p.image}" class="product-thumb" alt="product"></td>
-                <td><strong>${p.name}</strong><br><small style="color:var(--admin-text-light)">${p.weight}</small></td>
+                <td><strong>${p.name}</strong><br><small style="color:var(--admin-text-light)">${p.weight || 'N/A'}</small></td>
                 <td><span class="badge ${p.category === 'Vegetables' ? 'badge-success' : 'badge-warning'}">${p.category}</span></td>
-                <td>$${parseFloat(p.price).toFixed(2)}</td>
-                <td>${p.farmerName}</td>
+                <td>₹${parseFloat(p.price).toFixed(2)}</td>
+                <td>${p.farmerName || p.seller}</td>
                 <td>
                     <button class="action-btn" style="color: #2ECC71;" onclick="approveProduct(${p.id})" title="Approve"><i data-lucide="check-circle" width="20" height="20"></i></button>
                     <button class="action-btn delete-btn" onclick="rejectProduct(${p.id})" title="Reject"><i data-lucide="x-circle" width="20" height="20"></i></button>
@@ -252,40 +296,40 @@ function initPendingProductsManager() {
             `;
             tbody.appendChild(tr);
         });
-        lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
     };
 
     renderPendingProducts();
 
-    window.approveProduct = (id) => {
-        if (confirm('Are you sure you want to approve this product for the storefront?')) {
-            const pending = getPendingProducts();
-            const product = pending.find(p => p.id === id);
-
-            if (product) {
-                // Remove from pending
-                savePendingProducts(pending.filter(p => p.id !== id));
-
-                // Add to approved products
-                const approved = getProducts();
-                // Ensure status is cleared or adjusted if used elsewhere
-                delete product.status;
-                approved.push(product);
-                saveProducts(approved);
-
-                // Update UIs
+    window.approveProduct = async (id) => {
+        showModernConfirm('Approve Product?', 'Are you sure you want to approve this product for the storefront?', 'success', async () => {
+            try {
+                await fetch(`http://localhost:5000/api/products/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'approved' })
+                });
                 renderPendingProducts();
                 if (window.renderAdminProductsTable) window.renderAdminProductsTable();
+            } catch(err) {
+                console.error("Approval failed", err);
             }
-        }
+        });
     };
 
-    window.rejectProduct = (id) => {
-        if (confirm('Are you sure you want to REJECT and delete this pending product?')) {
-            const pending = getPendingProducts().filter(p => p.id !== id);
-            savePendingProducts(pending);
-            renderPendingProducts();
-        }
+    window.rejectProduct = async (id) => {
+        showModernConfirm('Reject Product?', 'Are you sure you want to REJECT this pending product?', 'danger', async () => {
+            try {
+                await fetch(`http://localhost:5000/api/products/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'rejected' })
+                });
+                renderPendingProducts();
+            } catch(err) {
+                console.error("Rejection failed", err);
+            }
+        });
     };
 }
 
@@ -293,23 +337,69 @@ function initOrdersManager() {
     const tbody = document.getElementById('ordersTableBody');
     if (!tbody) return;
 
-    mockOrders.forEach(o => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><strong>${o.id}</strong></td>
-            <td>${o.customer}</td>
-            <td>${o.date}</td>
-            <td><span class="badge ${o.badgeClass}">${o.status}</span></td>
-            <td><strong>$${o.total.toFixed(2)}</strong></td>
-        `;
-        tbody.appendChild(tr);
-    });
+    window.markOrderDelivered = async (id) => {
+        showModernConfirm('Mark as Delivered?', 'Are you sure you want to mark this order as delivered? This will be visible to the customer.', 'success', async () => {
+            try {
+                await fetch(`http://localhost:5000/api/orders/${id}/deliver`, { method: 'PUT' });
+                renderOrders();
+            } catch(err) {
+                console.error("Failed to mark as delivered", err);
+            }
+        });
+    };
+
+    const renderOrders = async () => {
+        try {
+            const res = await fetch('http://localhost:5000/api/orders');
+            const orders = await res.json();
+            
+            tbody.innerHTML = '';
+            
+            if(orders.length === 0) {
+                 tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No orders yet.</td></tr>`;
+                 return;
+            }
+            
+            orders.forEach(o => {
+                const tr = document.createElement('tr');
+                const isDelivered = o.status === 'Delivered';
+                const actionBtn = isDelivered 
+                    ? `<span style="color:#2ECC71; font-size:0.85rem; font-weight:600;"><i data-lucide="check-check" width="16" height="16"></i> Delivered</span>` 
+                    : `<button class="action-btn" style="color: #2ECC71; background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 0.3rem 0.8rem; border-radius: 5px; font-size: 0.75rem; width: auto;" onclick="markOrderDelivered('${o.id}')" title="Mark Delivered">Deliver</button>`;
+
+                tr.innerHTML = `
+                    <td><strong>${o.id}</strong></td>
+                    <td>${o.customer}</td>
+                    <td>${o.date}</td>
+                    <td><span class="badge ${o.badgeClass || 'badge-warning'}">${o.status}</span></td>
+                    <td><strong>₹${o.total.toFixed(2)}</strong></td>
+                    <td>${actionBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            if (window.lucide) window.lucide.createIcons();
+        } catch(err) {
+            console.error("Failed to load orders", err);
+        }
+    }
+    
+    renderOrders();
 }
 
-function updateDashboardStats() {
-    const products = getProducts();
-    const countEl = document.getElementById('totalProductsCount');
-    if (countEl) {
-        countEl.innerText = products.length;
+async function updateDashboardStats(preloadedCount) {
+    try {
+        const res = await fetch('http://localhost:5000/api/admin/stats');
+        const data = await res.json();
+        if (data.success) {
+            const prodEl = document.getElementById('totalProductsCount');
+            const ordersEl = document.getElementById('totalOrdersCount');
+            const farmersEl = document.getElementById('activeFarmersCount');
+
+            if (prodEl) prodEl.innerText = data.totalProducts;
+            if (ordersEl) ordersEl.innerText = data.totalOrders;
+            if (farmersEl) farmersEl.innerText = data.activeFarmers;
+        }
+    } catch (err) {
+        console.error("Dashboard stats error", err);
     }
 }

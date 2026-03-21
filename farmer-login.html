@@ -55,7 +55,7 @@
                 </div>
 
                 <!-- Login Form -->
-                <form class="auth-form active" id="form-login" action="farmer-dashboard.html">
+                <form class="auth-form active" id="form-login">
                     <h2>Seller Portal</h2>
                     <p class="subtitle">Manage your inventory and track your daily orders.</p>
 
@@ -64,10 +64,11 @@
                         <input type="text" placeholder="Shop ID or Phone Number" required>
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-group" style="margin-bottom: 0;">
                         <i data-lucide="lock" class="input-icon" width="20" height="20"></i>
                         <input type="password" placeholder="Password" required>
                     </div>
+                    <div id="login-error" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 0.5rem; text-align: left;">Invalid credentials. Please try again.</div>
 
                     <div class="form-options">
                         <label class="checkbox-container">
@@ -85,7 +86,7 @@
                 </form>
 
                 <!-- Sign Up Form -->
-                <form class="auth-form" id="form-signup" action="farmer-dashboard.html">
+                <form class="auth-form" id="form-signup">
                     <h2>Partner Registration</h2>
                     <p class="subtitle" style="margin-bottom: 1rem;">Start selling your harvest directly to your community.</p>
 
@@ -192,6 +193,96 @@
                 checkmark.style.backgroundColor = '#e2e8f0';
             }
         }
+        
+        const loginForm = document.getElementById('form-login');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const inputs = loginForm.querySelectorAll('input');
+                const username = inputs[0].value;
+                const password = inputs[1].value;
+                const errorDiv = document.getElementById('login-error');
+                errorDiv.style.display = 'none';
+
+                try {
+                    const res = await fetch('http://localhost:5000/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password, type: 'farmer' })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const profiles = JSON.parse(localStorage.getItem('fm_profiles') || '{}');
+                        const displayName = profiles[username] || username.split('@')[0];
+                        localStorage.setItem('fm_user', JSON.stringify({ name: displayName, email: username, role: data.role, token: data.token }));
+                        window.location.href = 'farmer-dashboard.html';
+                    } else {
+                        errorDiv.innerText = "Invalid password or shop ID.";
+                        errorDiv.style.display = 'block';
+                    }
+                } catch(err) {
+                    errorDiv.innerText = "Server error. Please ensure the backend is running.";
+                    errorDiv.style.display = 'block';
+                }
+            });
+        }
+        
+        const signupForm = document.getElementById('form-signup');
+        if (signupForm) {
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const inputs = signupForm.querySelectorAll('input');
+                const fullName = inputs[1].value;
+                const phone = inputs[2].value;
+                const password = signupForm.querySelector('input[type="password"]').value;
+
+                try {
+                    const res = await fetch('http://localhost:5000/api/auth/signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: phone, password, type: 'farmer' })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        const profiles = JSON.parse(localStorage.getItem('fm_profiles') || '{}');
+                        profiles[phone] = fullName;
+                        localStorage.setItem('fm_profiles', JSON.stringify(profiles));
+
+                        const overlay = document.getElementById('success-overlay');
+                        overlay.classList.add('show');
+                        
+                        setTimeout(() => {
+                            overlay.classList.remove('show');
+                            signupForm.reset();
+                            
+                            // Reset custom checkboxes colored ui if any
+                            const checkmarks = signupForm.querySelectorAll('.checkmark');
+                            checkmarks.forEach(cm => cm.style.backgroundColor = '#e2e8f0');
+                            
+                            toggleForm(true); // Switch to login form
+                        }, 2500);
+                    } else {
+                        alert(data.message || "Error creating account.");
+                    }
+                } catch(err) {
+                    alert("Server error. Please ensure the backend is running.");
+                }
+            });
+        }
     </script>
+
+    <div id="success-overlay" class="success-overlay">
+        <div class="success-checkmark">
+            <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
+            </div>
+        </div>
+        <h2>Account Created Successfully!</h2>
+    </div>
 </body>
 </html>
