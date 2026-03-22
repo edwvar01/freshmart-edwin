@@ -9,13 +9,15 @@ router.get('/stats', async (req, res) => {
     try {
         const totalProducts = await Product.countDocuments();
         const activeFarmers = await User.countDocuments({ role: 'farmer' });
+        const happyUsers = await User.countDocuments({ role: 'customer' });
         const totalOrders = await Order.countDocuments();
 
         return res.json({
             success: true,
             totalProducts,
             activeFarmers,
-            totalOrders
+            totalOrders,
+            happyUsers
         });
     } catch (err) {
         console.error("Error fetching stats:", err);
