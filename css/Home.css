@@ -313,98 +313,57 @@
     font-size: 1.05rem;
 }
 
-/* Farmers Grid */
-.farmers-grid {
+/* Features Grid */
+.features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 2rem;
 }
 
-.farmer-card {
+.feature-card {
     background: white;
     border-radius: 20px;
-    overflow: hidden;
+    padding: 2rem 1.5rem;
+    text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.farmer-card:hover {
+.feature-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
 }
 
-.farmer-image {
-    position: relative;
-    height: 200px;
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
 }
 
-.farmer-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
 }
 
-.farmer-distance {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 0.4rem 0.8rem;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #1e293b;
-    backdrop-filter: blur(4px);
-}
-
-.farmer-info {
-    padding: 1.5rem;
-}
-
-.farmer-name {
-    font-size: 1.4rem;
+.feature-title {
+    font-size: 1.25rem;
     color: #1e293b;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
-.farmer-rating {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.stars {
-    color: #fbbf24;
-    letter-spacing: 2px;
-}
-
-.rating-value {
+.feature-desc {
     color: #64748b;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-.visit-store-btn {
-    display: block;
-    width: 100%;
-    text-align: center;
-    padding: 0.8rem;
-    background: #f8fafc;
-    color: #2ECC71;
-    text-decoration: none;
-    font-weight: 600;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    border: 1px solid #e2e8f0;
-}
-
-.visit-store-btn:hover {
-    background: #2ECC71;
-    color: white;
-    border-color: #2ECC71;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 

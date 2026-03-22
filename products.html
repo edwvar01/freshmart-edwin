@@ -67,6 +67,7 @@
                             <li><button class="category-btn">Fruits</button></li>
                             <li><button class="category-btn">Dairy</button></li>
                             <li><button class="category-btn">Grains</button></li>
+                            <li><button class="category-btn">Herbs & Spices</button></li>
                             <li><button class="category-btn">Organic Products</button></li>
                             <li><button class="category-btn">Near Expiry</button></li>
                             <li><button class="category-btn">Discount Deals</button></li>
@@ -198,7 +199,7 @@
                 if (window.lucide) window.lucide.createIcons();
             }
 
-            await renderStoreProducts();
+            renderStoreProducts();
 
             const productCards = document.querySelectorAll('.product-card');
             const resultsCount = document.querySelector('.results-count');
