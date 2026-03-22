@@ -249,6 +249,7 @@ function initProductsManager() {
                 console.error("Failed to delete", err);
             }
         });
+<<<<<<< HEAD
     };
 
     window.editProduct = async (id) => {
@@ -301,6 +302,31 @@ function initProductsManager() {
             }
         });
     }
+=======
+    };
+
+    window.editProduct = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/products/${id}`);
+            const product = await res.json();
+            if (!product) return;
+
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.name || '';
+            document.getElementById('productPrice').value = product.price || '';
+            document.getElementById('productImage').value = ''; 
+            document.getElementById('productCategory').value = product.category || 'Vegetables';
+            if(document.getElementById('productMfd')) document.getElementById('productMfd').value = product.mfdDate || '';
+            if(document.getElementById('productExpiry')) document.getElementById('productExpiry').value = product.expiryDate || '';
+            document.getElementById('productSeller').value = product.seller || '';
+
+            document.getElementById('modalTitle').innerText = 'Edit Product';
+            modal.classList.add('active');
+        } catch(err) {
+            console.error("Failed to load product for editing", err);
+        }
+    };
+>>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
 }
 
 function initPendingProductsManager() {

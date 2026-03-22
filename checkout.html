@@ -60,11 +60,15 @@
                         <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address
                         </h2>
 <<<<<<< HEAD
+<<<<<<< HEAD
                         <form id="checkout-form" class="checkout-form"
                             onsubmit="window.processCheckout(event);">
 =======
                         <form id="checkout-form" class="checkout-form">
 >>>>>>> 274bb21 (backend set aaki)
+=======
+                        <form id="checkout-form" class="checkout-form">
+>>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
                             <div class="form-row">
                                 <div class="input-block">
                                     <label>Full Name</label>
@@ -172,6 +176,7 @@
             
             const itemsContainer = document.getElementById('summaryItemsContainer');
 <<<<<<< HEAD
+<<<<<<< HEAD
             window.currentOrderItems = [];
 
             if (productId) {
@@ -239,6 +244,14 @@
             let cartKey = null;
             let cart = [];
 
+=======
+            
+            const userJson = localStorage.getItem('fm_user');
+            let currentUser = null;
+            let cartKey = null;
+            let cart = [];
+
+>>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
             if (userJson) {
                 currentUser = JSON.parse(userJson);
                 cartKey = 'fm_cart_' + currentUser.name;
@@ -246,7 +259,10 @@
                 
                 // Prefill form
                 document.querySelector('input[name="fullName"]').value = currentUser.name;
+<<<<<<< HEAD
 >>>>>>> 274bb21 (backend set aaki)
+=======
+>>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
             }
 
             if (cart.length === 0) {
@@ -325,6 +341,7 @@
                 }
             });
         });
+<<<<<<< HEAD
 
         window.processCheckout = function(event) {
             event.preventDefault();
@@ -334,6 +351,8 @@
             }
             window.location.href = 'order-success.html';
         };
+=======
+>>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
     </script>
     <script src="js/auth-ui.js"></script>
 </body>
