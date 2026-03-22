@@ -59,16 +59,7 @@
                     <div class="checkout-section">
                         <h2 class="section-title"><i data-lucide="map-pin" width="20" height="20"></i> Shipping Address
                         </h2>
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        <form id="checkout-form" class="checkout-form"
-                            onsubmit="window.processCheckout(event);">
-=======
                         <form id="checkout-form" class="checkout-form">
->>>>>>> 274bb21 (backend set aaki)
-=======
-                        <form id="checkout-form" class="checkout-form">
->>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
                             <div class="form-row">
                                 <div class="input-block">
                                     <label>Full Name</label>
@@ -175,83 +166,11 @@
             if (window.lucide) window.lucide.createIcons();
             
             const itemsContainer = document.getElementById('summaryItemsContainer');
-<<<<<<< HEAD
-<<<<<<< HEAD
-            window.currentOrderItems = [];
-
-            if (productId) {
-                // User is doing a direct "Buy Now" for a specific item
-                let prodsStr = localStorage.getItem('fm_admin_products');
-                let products = prodsStr ? JSON.parse(prodsStr) : [];
-                const product = products.find(p => p.id === productId);
-
-                if (product) {
-                    const itemTotal = parseFloat(product.price) * qty;
-                    subtotal = itemTotal;
-
-                    window.currentOrderItems.push({
-                        name: product.name,
-                        image: product.image,
-                        price: product.price,
-                        qty: qty,
-                        total: itemTotal
-                    });
-
-                    document.getElementById('summaryTitle').innerText = `Order Summary (${qty} items)`;
-                    itemsContainer.innerHTML = `
-                        <div class="mini-cart-item">
-                            <div class="mini-item-info">
-                                <span class="mini-item-qty">${qty}x</span>
-                                <span class="mini-item-name">${product.name}</span>
-                            </div>
-                            <span class="mini-item-price">₹${itemTotal.toFixed(2)}</span>
-                        </div>
-                    `;
-                } else {
-                    itemsContainer.innerHTML = `<p style="color:red">Item not found.</p>`;
-                }
-
-            } else {
-                // Dummy fallback cart if they just navigated to checkout directly
-                subtotal = 190.00;
-                
-                window.currentOrderItems = [
-                    { name: 'Fresh Organic Carrots', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500&q=80', price: 60.00, qty: 1, total: 60.00 },
-                    { name: 'Fresh Cow Milk', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&q=80', price: 65.00, qty: 2, total: 130.00 }
-                ];
-
-                document.getElementById('summaryTitle').innerText = `Order Summary (3 items)`;
-                itemsContainer.innerHTML = `
-                    <div class="mini-cart-item">
-                        <div class="mini-item-info">
-                            <span class="mini-item-qty">1x</span>
-                            <span class="mini-item-name">Fresh Organic Carrots</span>
-                        </div>
-                        <span class="mini-item-price">₹60.00</span>
-                    </div>
-                    <div class="mini-cart-item">
-                        <div class="mini-item-info">
-                            <span class="mini-item-qty">2x</span>
-                            <span class="mini-item-name">Fresh Cow Milk</span>
-                        </div>
-                        <span class="mini-item-price">₹130.00</span>
-                    </div>
-                `;
-=======
-            
             const userJson = localStorage.getItem('fm_user');
             let currentUser = null;
             let cartKey = null;
             let cart = [];
 
-=======
-            
-            const userJson = localStorage.getItem('fm_user');
-            let currentUser = null;
-            let cartKey = null;
-            let cart = [];
-
->>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
             if (userJson) {
                 currentUser = JSON.parse(userJson);
                 cartKey = 'fm_cart_' + currentUser.name;
@@ -259,10 +178,6 @@
                 
                 // Prefill form
                 document.querySelector('input[name="fullName"]').value = currentUser.name;
-<<<<<<< HEAD
->>>>>>> 274bb21 (backend set aaki)
-=======
->>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
             }
 
             if (cart.length === 0) {
@@ -341,18 +256,7 @@
                 }
             });
         });
-<<<<<<< HEAD
 
-        window.processCheckout = function(event) {
-            event.preventDefault();
-            localStorage.setItem('fm_has_order', 'true');
-            if (window.currentOrderItems && window.currentOrderItems.length > 0) {
-                localStorage.setItem('fm_order_items', JSON.stringify(window.currentOrderItems));
-            }
-            window.location.href = 'order-success.html';
-        };
-=======
->>>>>>> 5aad55e32d039d0c5233ef2265a3f66b2b0eb7f8
     </script>
     <script src="js/auth-ui.js"></script>
 </body>
