@@ -101,7 +101,7 @@ if (fs.existsSync(farmerPath)) {
             const userJson = localStorage.getItem('fm_user');
             if(!userJson) return;
             const user = JSON.parse(userJson);
-            fetch('http://localhost:5000/api/orders/farmer/' + encodeURIComponent(user.name))
+            fetch('https://freshmart-edwin.onrender.com/api/orders/farmer/' + encodeURIComponent(user.name))
                 .then(res => res.json())
                 .then(data => {
                     const el = document.getElementById('farmerTotalSales');

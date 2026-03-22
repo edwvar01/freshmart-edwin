@@ -40,7 +40,7 @@
                 <div class="navbar-actions">
                     <a href="cart.html" class="nav-action-btn cart-btn">
                         <i data-lucide="shopping-cart" width="24" height="24"></i>
-                        <span class="cart-badge">2</span>
+                        <span class="cart-badge" id="cart-badge-count">0</span>
                     </a>
                     <a href="index.html" class="nav-action-btn user-btn desktop-user">
                         <i data-lucide="user" width="24" height="24"></i>
@@ -108,8 +108,7 @@
                                     onclick="let q=document.getElementById('qty'); q.innerText=parseInt(q.innerText)+1;">+</button>
                             </div>
 
-                            <button class="btn btn-primary add-to-cart-large"
-                                onclick="alert(document.getElementById('qty').innerText + 'x Fresh Organic Carrots added to cart!');">
+                            <button class="btn btn-primary add-to-cart-large">
                                 <i data-lucide="shopping-cart" width="20" height="20"></i> Add to Cart
                             </button>
 
@@ -163,7 +162,7 @@
 
             let product;
             try {
-                const res = await fetch(`http://localhost:5000/api/products/${productId}`);
+                const res = await fetch(`https://freshmart-edwin.onrender.com/api/products/${productId}`);
                 if (!res.ok) throw new Error();
                 product = await res.json();
             } catch(e) {
@@ -273,6 +272,7 @@
             }
         });
     </script>
+    <script src="js/auth-ui.js"></script>
 </body>
 
 </html>

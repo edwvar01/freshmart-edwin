@@ -407,6 +407,46 @@ body {
   transform: translateY(0);
 }
 
+/* Global Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #2ECC71;
+    color: white;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn-primary:hover {
+    background: #27AE60;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: #1e293b;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    transform: translateY(-2px);
+}
+
 /* Responsive */
 @media (max-width: 850px) {
   .container {

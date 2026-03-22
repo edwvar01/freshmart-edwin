@@ -71,10 +71,10 @@ const newSubmit = `form.addEventListener('submit', async (e) => {
         formData.append('status', 'approved');
 
         try {
-            let url = 'http://localhost:5000/api/products';
+            let url = 'https://freshmart-edwin.onrender.com/api/products';
             let method = 'POST';
             if (id) {
-                url = \`http://localhost:5000/api/products/\${id}\`;
+                url = \`https://freshmart-edwin.onrender.com/api/products/\${id}\`;
                 method = 'PUT';
             } else {
                 if(!document.getElementById('productImage').files.length) {
@@ -102,7 +102,7 @@ adminJs = adminJs.replace(
     /window\.editProduct\s*=\s*async\s*\(id\)\s*=>\s*\{[\s\S]*?modal\.classList\.add\('active'\);\s*\}\s*catch\(err\)\s*\{[\s\S]*?\}\s*};\s*\}/,
     `window.editProduct = async (id) => {
         try {
-            const res = await fetch(\`http://localhost:5000/api/products/\${id}\`);
+            const res = await fetch(\`https://freshmart-edwin.onrender.com/api/products/\${id}\`);
             const product = await res.json();
             if (!product) return;
 

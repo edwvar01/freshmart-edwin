@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const errorMsg = document.getElementById('loginError');
 
             try {
-                const res = await fetch('http://localhost:5000/api/auth/login', {
+                const res = await fetch('https://freshmart-edwin.onrender.com/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: user, password: pass, type: 'admin' })
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function getProducts() {
     try {
-        const res = await fetch('http://localhost:5000/api/products');
+        const res = await fetch('https://freshmart-edwin.onrender.com/api/products');
         return await res.json();
     } catch(err) {
         console.error("Error fetching products", err);
@@ -138,7 +138,7 @@ async function getProducts() {
 
 async function getPendingProducts() {
     try {
-        const res = await fetch('http://localhost:5000/api/products/pending');
+        const res = await fetch('https://freshmart-edwin.onrender.com/api/products/pending');
         return await res.json();
     } catch(err) {
         console.error("Error fetching pending products", err);
@@ -210,10 +210,10 @@ function initProductsManager() {
         formData.append('status', 'approved');
 
         try {
-            let url = 'http://localhost:5000/api/products';
+            let url = 'https://freshmart-edwin.onrender.com/api/products';
             let method = 'POST';
             if (id) {
-                url = `http://localhost:5000/api/products/${id}`;
+                url = `https://freshmart-edwin.onrender.com/api/products/${id}`;
                 method = 'PUT';
             } else {
                 if(!document.getElementById('productImage').files.length) {
@@ -243,7 +243,7 @@ function initProductsManager() {
     window.deleteProduct = async (id) => {
         showModernConfirm('Delete Product?', 'Are you sure you want to permanently delete this product?', 'danger', async () => {
             try {
-                await fetch(`http://localhost:5000/api/products/${id}`, { method: 'DELETE' });
+                await fetch(`https://freshmart-edwin.onrender.com/api/products/${id}`, { method: 'DELETE' });
                 renderProducts();
             } catch(err) {
                 console.error("Failed to delete", err);
@@ -253,7 +253,7 @@ function initProductsManager() {
 
     window.editProduct = async (id) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/products/${id}`);
+            const res = await fetch(`https://freshmart-edwin.onrender.com/api/products/${id}`);
             const product = await res.json();
             if (!product) return;
 
@@ -340,7 +340,7 @@ function initPendingProductsManager() {
     window.approveProduct = async (id) => {
         showModernConfirm('Approve Product?', 'Are you sure you want to approve this product for the storefront?', 'success', async () => {
             try {
-                await fetch(`http://localhost:5000/api/products/${id}`, {
+                await fetch(`https://freshmart-edwin.onrender.com/api/products/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'approved' })
@@ -356,7 +356,7 @@ function initPendingProductsManager() {
     window.rejectProduct = async (id) => {
         showModernConfirm('Reject Product?', 'Are you sure you want to REJECT this pending product?', 'danger', async () => {
             try {
-                await fetch(`http://localhost:5000/api/products/${id}`, {
+                await fetch(`https://freshmart-edwin.onrender.com/api/products/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'rejected' })
@@ -376,7 +376,7 @@ function initOrdersManager() {
     window.markOrderDelivered = async (id) => {
         showModernConfirm('Mark as Delivered?', 'Are you sure you want to mark this order as delivered? This will be visible to the customer.', 'success', async () => {
             try {
-                await fetch(`http://localhost:5000/api/orders/${id}/deliver`, { method: 'PUT' });
+                await fetch(`https://freshmart-edwin.onrender.com/api/orders/${id}/deliver`, { method: 'PUT' });
                 renderOrders();
             } catch(err) {
                 console.error("Failed to mark as delivered", err);
@@ -386,7 +386,7 @@ function initOrdersManager() {
 
     const renderOrders = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/orders');
+            const res = await fetch('https://freshmart-edwin.onrender.com/api/orders');
             const orders = await res.json();
             
             tbody.innerHTML = '';
@@ -424,7 +424,7 @@ function initOrdersManager() {
 
 async function updateDashboardStats(preloadedCount) {
     try {
-        const res = await fetch('http://localhost:5000/api/admin/stats');
+        const res = await fetch('https://freshmart-edwin.onrender.com/api/admin/stats');
         const data = await res.json();
         if (data.success) {
             const prodEl = document.getElementById('totalProductsCount');

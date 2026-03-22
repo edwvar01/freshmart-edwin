@@ -32,7 +32,7 @@ setTimeout(async () => {
         const blob = new Blob([buffer], { type: 'image/jpeg' });
         form.append('image', blob, 'dummy2.jpg');
 
-        const res = await fetch('http://localhost:5000/api/products', {
+        const res = await fetch('https://freshmart-edwin.onrender.com/api/products', {
             method: 'POST',
             body: form
         });

@@ -90,7 +90,7 @@
             const user = JSON.parse(userJson);
 
             try {
-                const res = await fetch(`http://localhost:5000/api/orders?user=${encodeURIComponent(user.name)}`);
+                const res = await fetch(`https://freshmart-edwin.onrender.com/api/orders?user=${encodeURIComponent(user.name)}`);
                 const orders = await res.json();
                 
                 if (orders.length > 0) {

@@ -79,10 +79,6 @@
                             <span class="stat-value" id="stat-products">...</span>
                             <span class="stat-label">Fresh Products</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="stat-users">...</span>
-                            <span class="stat-label">Happy Users</span>
-                        </div>
                     </div>
                 </div>
                 <!-- ... Hero Image and floating cards ... -->
@@ -262,20 +258,18 @@
         lucide.createIcons();
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/admin/stats');
+                const res = await fetch('https://freshmart-edwin.onrender.com/api/admin/stats');
                 const data = await res.json();
                 if (data.success) {
                     const formatStat = (num) => num > 0 ? num + '+' : '0';
                     document.getElementById('stat-farmers').innerText = formatStat(data.activeFarmers);
                     document.getElementById('stat-products').innerText = formatStat(data.totalProducts);
-                    document.getElementById('stat-users').innerText = formatStat(data.happyUsers);
                 }
             } catch (err) {
                 console.error('Failed to fetch stats:', err);
                 // Fallback to 0 if server is down
                 document.getElementById('stat-farmers').innerText = '0+';
                 document.getElementById('stat-products').innerText = '0+';
-                document.getElementById('stat-users').innerText = '0+';
             }
         });
     </script>
