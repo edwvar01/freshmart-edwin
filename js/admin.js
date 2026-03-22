@@ -163,15 +163,18 @@ function initProductsManager() {
         tbody.innerHTML = '';
         products.forEach(p => {
             const tr = document.createElement('tr');
+            const pid = p._id || p.id;
+            const mfdText = (p.mfdDate || p.mfd) ? `<br><small style="color: #64748b;">MFD: ${p.mfdDate || p.mfd}</small>` : '';
+            const expText = (p.expiryDate || p.expiry) ? `<br><small style="color: #64748b;">Exp: ${p.expiryDate || p.expiry}</small>` : '';
             tr.innerHTML = `
                 <td><img src="${p.image}" class="product-thumb" alt="product"></td>
-                <td><strong>${p.name}</strong>${p.expiryDate ? `<br><small style="color: #64748b;">Expires: ${p.expiryDate}</small>` : ''}</td>
+                <td><strong>${p.name}</strong>${mfdText}${expText}</td>
                 <td><span class="badge ${p.category === 'Vegetables' ? 'badge-success' : 'badge-warning'}">${p.category}</span></td>
                 <td>₹${parseFloat(p.price).toFixed(2)}</td>
                 <td>${p.seller}</td>
                 <td>
-                    <button class="action-btn edit-btn" onclick="editProduct(${p.id})"><i data-lucide="edit" width="18" height="18"></i></button>
-                    <button class="action-btn delete-btn" onclick="deleteProduct(${p.id})"><i data-lucide="trash-2" width="18" height="18"></i></button>
+                    <button class="action-btn edit-btn" onclick="editProduct('${pid}')"><i data-lucide="edit" width="18" height="18"></i></button>
+                    <button class="action-btn delete-btn" onclick="deleteProduct('${pid}')"><i data-lucide="trash-2" width="18" height="18"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -187,7 +190,10 @@ function initProductsManager() {
     addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('productId').value = '';
-        expiryGroup.style.display = 'none';
+        if (document.getElementById('expiryGroup')) document.getElementById('expiryGroup').style.display = 'block';
+        if (document.getElementById('mfdGroup')) document.getElementById('mfdGroup').style.display = 'block';
+        if (document.getElementById('currentImageText')) document.getElementById('currentImageText').style.display = 'none';
+        if (document.getElementById('currentImagePreview')) document.getElementById('currentImagePreview').style.display = 'none';
         document.getElementById('modalTitle').innerText = 'Add New Product';
         modal.classList.add('active');
     });
@@ -251,14 +257,27 @@ function initProductsManager() {
             const product = await res.json();
             if (!product) return;
 
-            document.getElementById('productId').value = product.id;
+            document.getElementById('productId').value = product.id || product._id || '';
             document.getElementById('productName').value = product.name || '';
             document.getElementById('productPrice').value = product.price || '';
             document.getElementById('productImage').value = ''; 
+            if(document.getElementById('currentImagePreview')) {
+                const preview = document.getElementById('currentImagePreview');
+                if (product.image) {
+                    preview.src = product.image;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                }
+            }
+            if(document.getElementById('currentImageText')) {
+                document.getElementById('currentImageText').style.display = 'block';
+                document.getElementById('currentImageText').innerText = 'Leave empty to keep current image: ' + (product.image ? product.image.split('/').pop() : 'None');
+            }
             document.getElementById('productCategory').value = product.category || 'Vegetables';
-            if(document.getElementById('productMfd')) document.getElementById('productMfd').value = product.mfdDate || '';
-            if(document.getElementById('productExpiry')) document.getElementById('productExpiry').value = product.expiryDate || '';
-            document.getElementById('productSeller').value = product.seller || '';
+            if(document.getElementById('productMfd')) document.getElementById('productMfd').value = product.mfdDate || product.mfd || '';
+            if(document.getElementById('productExpiry')) document.getElementById('productExpiry').value = product.expiryDate || product.expiry || '';
+            document.getElementById('productSeller').value = product.seller || 'Store';
 
             document.getElementById('modalTitle').innerText = 'Edit Product';
             modal.classList.add('active');
@@ -266,6 +285,22 @@ function initProductsManager() {
             console.error("Failed to load product for editing", err);
         }
     };
+
+    const imgInput = document.getElementById('productImage');
+    if (imgInput) {
+        imgInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const preview = document.getElementById('currentImagePreview');
+            if (file && preview) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    preview.src = evt.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 }
 
 function initPendingProductsManager() {
@@ -283,6 +318,7 @@ function initPendingProductsManager() {
 
         pending.forEach(p => {
             const tr = document.createElement('tr');
+            const pid = p._id || p.id;
             tr.innerHTML = `
                 <td><img src="${p.image}" class="product-thumb" alt="product"></td>
                 <td><strong>${p.name}</strong><br><small style="color:var(--admin-text-light)">${p.weight || 'N/A'}</small></td>
@@ -290,8 +326,8 @@ function initPendingProductsManager() {
                 <td>₹${parseFloat(p.price).toFixed(2)}</td>
                 <td>${p.farmerName || p.seller}</td>
                 <td>
-                    <button class="action-btn" style="color: #2ECC71;" onclick="approveProduct(${p.id})" title="Approve"><i data-lucide="check-circle" width="20" height="20"></i></button>
-                    <button class="action-btn delete-btn" onclick="rejectProduct(${p.id})" title="Reject"><i data-lucide="x-circle" width="20" height="20"></i></button>
+                    <button class="action-btn" style="color: #2ECC71;" onclick="approveProduct('${pid}')" title="Approve"><i data-lucide="check-circle" width="20" height="20"></i></button>
+                    <button class="action-btn delete-btn" onclick="rejectProduct('${pid}')" title="Reject"><i data-lucide="x-circle" width="20" height="20"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);

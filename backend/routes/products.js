@@ -1,19 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const multer = require('multer');
 const path = require('path');
 
-// Configure multer storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
+// Configure multer storage (Memory storage for Base64 conversion)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // Get all approved products
 router.get('/', async (req, res) => {
@@ -49,7 +43,8 @@ router.get('/farmer/:name', async (req, res) => {
 // Get a single product
 router.get('/:id', async (req, res) => {
     try {
-        const product = await Product.findOne({ id: req.params.id });
+        const query = mongoose.Types.ObjectId.isValid(req.params.id) ? { _id: req.params.id } : { id: parseInt(req.params.id) };
+        const product = await Product.findOne(query);
         if (!product) return res.status(404).json({ message: 'Product not found' });
         res.json(product);
     } catch (err) {
@@ -62,7 +57,8 @@ router.post('/', upload.single('image'), async (req, res) => {
     try {
         const productData = req.body;
         if (req.file) {
-            productData.image = `http://localhost:5000/uploads/${req.file.filename}`;
+            const base64Image = req.file.buffer.toString('base64');
+            productData.image = `data:${req.file.mimetype};base64,${base64Image}`;
         } else if (!productData.image) {
             // Fallback for cases where image wasn't uploaded but default is provided
             // productData.image is already in req.body
@@ -78,13 +74,16 @@ router.post('/', upload.single('image'), async (req, res) => {
 
 // Update a product (e.g. edit or approve)
 router.put('/:id', upload.single('image'), async (req, res) => {
-        if (req.file) {
-            req.body.image = `http://localhost:5000/uploads/${req.file.filename}`;
-        }
+    if (req.file) {
+        const base64Image = req.file.buffer.toString('base64');
+        req.body.image = `data:${req.file.mimetype};base64,${base64Image}`;
+    } else {
+        delete req.body.image;
+    }
     try {
-        // Find by custom `id` field since frontend uses integers
+        const query = mongoose.Types.ObjectId.isValid(req.params.id) ? { _id: req.params.id } : { id: parseInt(req.params.id) };
         const product = await Product.findOneAndUpdate(
-            { id: parseInt(req.params.id) },
+            query,
             req.body,
             { new: true }
         );
@@ -98,7 +97,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 // Delete a product (reject pending or delete approved)
 router.delete('/:id', async (req, res) => {
     try {
-        const product = await Product.findOneAndDelete({ id: parseInt(req.params.id) });
+        const query = mongoose.Types.ObjectId.isValid(req.params.id) ? { _id: req.params.id } : { id: parseInt(req.params.id) };
+        const product = await Product.findOneAndDelete(query);
         if (!product) return res.status(404).json({ message: 'Product not found' });
         res.json({ message: 'Product deleted' });
     } catch (err) {

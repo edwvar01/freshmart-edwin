@@ -114,22 +114,24 @@
                             <button class="close-btn" id="closeModal"><i data-lucide="x"></i></button>
                         </div>
                         <form id="productForm">
-                            <input type="hidden" id="productId">
+                            <input type="hidden" id="productId" name="id">
                             <div class="form-group">
                                 <label>Product Name</label>
-                                <input type="text" id="productName" required>
+                                <input type="text" id="productName" name="name" required>
                             </div>
                             <div class="form-group">
-                                <label>Price ($)</label>
-                                <input type="number" step="0.01" id="productPrice" required>
+                                <label>Price (₹)</label>
+                                <input type="number" step="0.01" id="productPrice" name="price" required>
                             </div>
                             <div class="form-group">
-                                <label>Image URL</label>
-                                <input type="url" id="productImage" placeholder="https://..." required>
+                                <label>Product Image</label>
+                                <img id="currentImagePreview" src="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; display: none;">
+                                <input type="file" id="productImage" name="image" accept="image/*">
+                                <small style="display:block; margin-top: 5px; color: #64748b;" id="currentImageText">Upload a new image or leave empty to keep current</small>
                             </div>
                             <div class="form-group">
                                 <label>Category</label>
-                                <select id="productCategory" required>
+                                <select id="productCategory" name="category" required>
                                     <option value="Vegetables">Vegetables</option>
                                     <option value="Fruits">Fruits</option>
                                     <option value="Dairy">Dairy</option>
@@ -137,13 +139,17 @@
                                     <option value="Organic Products">Organic Products</option>
                                 </select>
                             </div>
-                            <div class="form-group" id="expiryGroup" style="display: none;">
+                            <div class="form-group" id="mfdGroup">
+                                <label>Manufacturing Date (MFD)</label>
+                                <input type="date" id="productMfd" name="mfdDate">
+                            </div>
+                            <div class="form-group" id="expiryGroup">
                                 <label>Expiry Date</label>
-                                <input type="date" id="productExpiry">
+                                <input type="date" id="productExpiry" name="expiryDate">
                             </div>
                             <div class="form-group">
                                 <label>Seller Type</label>
-                                <select id="productSeller" required>
+                                <select id="productSeller" name="seller" required>
                                     <option value="Store">FreshMart Store</option>
                                     <option value="Farmer">Local Farmer</option>
                                 </select>
