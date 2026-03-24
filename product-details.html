@@ -15,6 +15,12 @@
 </head>
 
 <body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Loading Fresh Produce...</div>
+    </div>
+
     <div class="page-wrapper">
         <!-- Navbar -->
         <nav class="navbar">
@@ -74,7 +80,7 @@
                             <span id="detailWeight" class="weight-tag">1 kg</span>
                         </div>
 
-                        <h1 id="detailTitle" class="detail-title">Loading...</h1>
+                        <h1 id="detailTitle" class="detail-title"></h1>
 
                         <div id="detailBadges" style="margin-bottom: 1rem;"></div>
 
@@ -95,7 +101,7 @@
                                 <i data-lucide="shield-check" width="24" height="24" class="verified"></i>
                             </div>
                             <div>
-                                <h4 id="detailFarmerName">Loading...</h4>
+                                <h4 id="detailFarmerName"></h4>
                             </div>
                         </div>
 
@@ -270,6 +276,13 @@
                     localStorage.setItem(cartKey, JSON.stringify(cart));
                     window.location.href = 'checkout.html';
                 };
+            }
+
+            // Hide loading overlay
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                setTimeout(() => overlay.remove(), 500);
             }
         });
     </script>

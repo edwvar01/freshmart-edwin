@@ -100,7 +100,7 @@
                     <div class="products-header">
                         <div>
                             <h1 class="page-title">All Products</h1>
-                            <p class="results-count">Showing 3 results</p>
+                            <p class="results-count">Loading products...</p>
                         </div>
 
                         <div class="products-search-bar">
@@ -111,12 +111,6 @@
 
                     <div class="products-grid" id="mainProductsGrid">
                         <!-- Products will be injected here by JS -->
-                    </div>
-                    <div id="noProductsMessage" style="display: none; text-align: center; padding: 3rem 1rem; background: white; border-radius: 20px; border: 1px dashed #cbd5e1; margin-top: 1rem;">
-                        <i data-lucide="package-search" width="48" height="48" style="color: #94a3b8; margin-bottom: 1rem;"></i>
-                        <h3 id="emptyCategoryText" style="color: #1e293b; font-size: 1.5rem; margin-bottom: 0.5rem;">No products available</h3>
-                        <p style="color: #64748b;">Try adjusting your filters or search terms.</p>
-                        <button class="btn btn-primary" onclick="resetFilters()" style="margin-top: 1.5rem; padding: 0.8rem 1.5rem;">Reset All Filters</button>
                     </div>
                 </section>
 
@@ -138,15 +132,6 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             const productsGrid = document.getElementById('mainProductsGrid');
-            const resultsCount = document.querySelector('.results-count');
-            const categoryBtns = document.querySelectorAll('.category-btn');
-            const priceSlider = document.getElementById('priceRangeSlider');
-            const priceValueLabel = document.getElementById('priceValueLabel');
-            const localSearchInput = document.getElementById('localSearchInput');
-
-            let currentSearch = '';
-            let currentCategory = 'All';
-            let currentMaxPrice = 500;
 
             async function renderStoreProducts() {
                 let products = [];
@@ -214,15 +199,23 @@
                 if (window.lucide) window.lucide.createIcons();
             }
 
-            const noProdsMsg = document.getElementById('noProductsMessage');
-            const emptyText = document.getElementById('emptyCategoryText');
+            await renderStoreProducts();
+
+            const productCards = document.querySelectorAll('.product-card');
+            const resultsCount = document.querySelector('.results-count');
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            const priceSlider = document.getElementById('priceRangeSlider');
+            const priceValueLabel = document.getElementById('priceValueLabel');
+
+            let currentSearch = '';
+            let currentCategory = 'All';
+            let currentMaxPrice = 500;
 
             function filterProducts() {
                 const term = currentSearch.toLowerCase().trim();
-                const cards = document.querySelectorAll('.product-card');
                 let count = 0;
 
-                cards.forEach(card => {
+                productCards.forEach(card => {
                     const title = card.querySelector('.product-title').textContent.toLowerCase();
                     const category = card.querySelector('.product-category').textContent.trim();
                     const isDiscount = card.querySelector('.badge-discount') !== null;
@@ -238,6 +231,7 @@
                     } else if (currentCategory === 'Discount Deals') {
                         matchesCategory = isDiscount;
                     } else if (currentCategory === 'Near Expiry') {
+                        // Show products that are either marked as near expiry or have a discount
                         matchesCategory = isDiscount || title.includes('expiry');
                     } else if (currentCategory === 'Herbs & Spices') {
                         matchesCategory = category === 'Herbs';
@@ -250,6 +244,7 @@
                     } else if (currentCategory === 'Grains & Pulses') {
                         matchesCategory = category === 'Grains';
                     } else {
+                        // Direct match
                         matchesCategory = category === currentCategory || category.includes(currentCategory);
                     }
 
@@ -264,41 +259,7 @@
                 if (resultsCount) {
                     resultsCount.textContent = `Showing ${count} results`;
                 }
-
-                if (count === 0) {
-                    productsGrid.style.display = 'none';
-                    if (noProdsMsg) noProdsMsg.style.display = 'block';
-                    if (emptyText) {
-                        const categoryName = currentCategory === 'All' ? '' : currentCategory.toLowerCase();
-                        emptyText.textContent = `No ${categoryName} available`;
-                    }
-                } else {
-                    productsGrid.style.display = 'grid';
-                    if (noProdsMsg) noProdsMsg.style.display = 'none';
-                }
             }
-
-            await renderStoreProducts();
-            
-            // Initial filter run needs to happen AFTER renderStoreProducts
-            filterProducts();
-
-            window.resetFilters = () => {
-                currentSearch = '';
-                currentCategory = 'All';
-                currentMaxPrice = 500;
-                
-                if (localSearchInput) localSearchInput.value = '';
-                if (priceSlider) priceSlider.value = 500;
-                if (priceValueLabel) priceValueLabel.textContent = '₹500+';
-                
-                categoryBtns.forEach(b => {
-                    b.classList.remove('active');
-                    if (b.textContent.trim() === 'All') b.classList.add('active');
-                });
-                
-                filterProducts();
-            };
 
             // Bind Category Clicks
             categoryBtns.forEach(btn => {
