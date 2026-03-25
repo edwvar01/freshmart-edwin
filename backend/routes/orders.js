@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         if (req.query.user) {
             filter.customer = req.query.user;
         }
-        const orders = await Order.find(filter).sort({ createdAt: -1 });
+        const orders = await Order.find(filter).select('-items.image').sort({ createdAt: -1 });
         res.json(orders);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
     try {
         const latestOrder = await Order.findOne().sort({ createdAt: -1 });
         let newIdNum = 1;
-        if (latestOrder && latestOrder.id && latestOrder.id.startsWith('ORD-')) {
+        if (latestOrder && latestOrder.id && typeof latestOrder.id === 'string' && latestOrder.id.startsWith('ORD-')) {
             newIdNum = parseInt(latestOrder.id.split('-')[1]) + 1;
         }
         

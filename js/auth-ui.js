@@ -173,6 +173,18 @@ window.updateCartBadge = function() {
         const cartKey = 'fm_cart_' + user.name;
         const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
         
+        // Clean up legacy Base64 images from cart to fix page loading lag
+        let needsSave = false;
+        cart.forEach(item => {
+            if (item.image && item.image.startsWith('data:image')) {
+                item.image = `/api/products/${item._id || item.id}/image`;
+                needsSave = true;
+            }
+        });
+        if (needsSave) {
+            localStorage.setItem(cartKey, JSON.stringify(cart));
+        }
+        
         // Calculate total items
         const totalItems = cart.reduce((acc, item) => acc + (item.qty || 1), 0);
         badgeCount.innerText = totalItems;
