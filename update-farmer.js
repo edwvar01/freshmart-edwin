@@ -22,7 +22,7 @@ const trackingScript = `
             const userJson = localStorage.getItem('fm_user');
             if (!userJson) return;
             const user = JSON.parse(userJson);
-            fetch('https://freshmart-edwin.onrender.com/api/products/farmer/' + user.name)
+            fetch('http://localhost:5000/api/products/farmer/' + user.name)
                 .then(res => res.json())
                 .then(products => {
                     const tbody = document.getElementById('farmerTrackingBody');

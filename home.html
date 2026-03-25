@@ -258,7 +258,7 @@
         lucide.createIcons();
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const res = await fetch('https://freshmart-edwin.onrender.com/api/admin/stats');
+                const res = await fetch('http://localhost:5000/api/admin/stats');
                 const data = await res.json();
                 if (data.success) {
                     const formatStat = (num) => num > 0 ? num + '+' : '0';

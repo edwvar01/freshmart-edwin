@@ -14,7 +14,7 @@ async function testUpload() {
     const blob = new Blob([buffer], { type: 'image/jpeg' });
     form.append('image', blob, 'test.jpg');
 
-    const res = await fetch('https://freshmart-edwin.onrender.com/api/products', {
+    const res = await fetch('http://localhost:5000/api/products', {
         method: 'POST',
         body: form
     });

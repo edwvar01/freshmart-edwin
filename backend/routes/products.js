@@ -12,8 +12,13 @@ const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } 
 // Get all approved products
 router.get('/', async (req, res) => {
     try {
-        const products = await Product.find({ status: 'approved' }).sort({ _id: -1 });
-        res.json(products);
+        const products = await Product.find({ status: 'approved' }).select('-image').sort({ _id: -1 }).lean();
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const productsWithImageUrls = products.map(product => ({
+            ...product,
+            image: `${baseUrl}/api/products/${product._id}/image`
+        }));
+        res.json(productsWithImageUrls);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -22,8 +27,13 @@ router.get('/', async (req, res) => {
 // Get all pending products (for Admin)
 router.get('/pending', async (req, res) => {
     try {
-        const products = await Product.find({ status: 'pending' });
-        res.json(products);
+        const products = await Product.find({ status: 'pending' }).select('-image').lean();
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const productsWithImageUrls = products.map(product => ({
+            ...product,
+            image: `${baseUrl}/api/products/${product._id}/image`
+        }));
+        res.json(productsWithImageUrls);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -33,8 +43,13 @@ router.get('/pending', async (req, res) => {
 router.get('/farmer/:name', async (req, res) => {
     try {
         // Find products where farmerName or seller matches the given name
-        const products = await Product.find({ $or: [{ farmerName: req.params.name }, { seller: req.params.name }, { uploader: req.params.name }] }).sort({ _id: -1 });
-        res.json(products);
+        const products = await Product.find({ $or: [{ farmerName: req.params.name }, { seller: req.params.name }, { uploader: req.params.name }] }).select('-image').sort({ _id: -1 }).lean();
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const productsWithImageUrls = products.map(product => ({
+            ...product,
+            image: `${baseUrl}/api/products/${product._id}/image`
+        }));
+        res.json(productsWithImageUrls);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -44,8 +59,10 @@ router.get('/farmer/:name', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const query = mongoose.Types.ObjectId.isValid(req.params.id) ? { _id: req.params.id } : { id: parseInt(req.params.id) };
-        const product = await Product.findOne(query);
+        const product = await Product.findOne(query).select('-image').lean();
         if (!product) return res.status(404).json({ message: 'Product not found' });
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        product.image = `${baseUrl}/api/products/${product._id}/image`;
         res.json(product);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -107,3 +124,35 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+
+// Get product image
+router.get('/:id/image', async (req, res) => {
+    try {
+        const query = mongoose.Types.ObjectId.isValid(req.params.id) ? { _id: req.params.id } : { id: parseInt(req.params.id) };
+        const product = await Product.findOne(query).select('image');
+        if (!product || !product.image) {
+            return res.status(404).json({ message: 'Image not found' });
+        }
+        
+        // Image format: 'data:image/jpeg;base64,/9j/4AAQSkZ...'
+        const matches = product.image.match(/^data:([a-zA-Z0-9-+\/]+);base64,(.+)$/);
+        
+        if (!matches || matches.length !== 3) {
+            // Fallback if it's not base64 but a direct URL string
+            if (product.image.startsWith('http') || product.image.startsWith('/')) {
+                return res.redirect(product.image);
+            }
+            return res.status(400).json({ message: 'Invalid image format' });
+        }
+        
+        const mimeType = matches[1];
+        const base64Data = matches[2];
+        const binaryData = Buffer.from(base64Data, 'base64');
+        
+        res.set('Content-Type', mimeType);
+        res.set('Cache-Control', 'public, max-age=86400');
+        res.send(binaryData);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});

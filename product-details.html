@@ -162,7 +162,7 @@
 
             let product;
             try {
-                const res = await fetch(`https://freshmart-edwin.onrender.com/api/products/${productId}`);
+                const res = await fetch(`http://localhost:5000/api/products/${productId}`);
                 if (!res.ok) throw new Error();
                 product = await res.json();
             } catch(e) {

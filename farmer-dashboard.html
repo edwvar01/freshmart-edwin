@@ -176,7 +176,7 @@
             const userJson = localStorage.getItem('fm_user');
             if (!userJson) return;
             const user = JSON.parse(userJson);
-            fetch('https://freshmart-edwin.onrender.com/api/products/farmer/' + encodeURIComponent(user.name))
+            fetch('http://localhost:5000/api/products/farmer/' + encodeURIComponent(user.name))
                 .then(res => res.json())
                 .then(products => {
                     const tbody = document.getElementById('farmerTrackingBody');
@@ -217,7 +217,7 @@
             const userJson = localStorage.getItem('fm_user');
             if(!userJson) return;
             const user = JSON.parse(userJson);
-            fetch('https://freshmart-edwin.onrender.com/api/orders/farmer/' + encodeURIComponent(user.name))
+            fetch('http://localhost:5000/api/orders/farmer/' + encodeURIComponent(user.name))
                 .then(res => res.json())
                 .then(data => {
                     const el = document.getElementById('farmerTotalSales');
@@ -254,7 +254,7 @@
                 }
                 // Expiry pruning removed since it is enforced globally
 
-                fetch('https://freshmart-edwin.onrender.com/api/products', {
+                fetch('http://localhost:5000/api/products', {
                     method: 'POST',
                     body: form
                 })
