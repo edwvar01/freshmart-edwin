@@ -102,7 +102,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         const product = await Product.findOneAndUpdate(
             query,
             req.body,
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!product) return res.status(404).json({ message: 'Product not found' });
         res.json(product);

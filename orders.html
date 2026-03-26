@@ -118,8 +118,11 @@
                                         <h2 style="font-size: 1.25rem; color: #1e293b; margin: 0 0 0.25rem;">Order ${order.id}</h2>
                                         <p style="color: #64748b; font-size: 0.95rem; margin: 0;">Placed on ${dateStr} | Total: ₹${order.total.toFixed(2)}</p>
                                     </div>
-                                    <div class="order-status-badge ${order.badgeClass || 'badge-warning'}">
-                                        ${order.status}
+                                    <div style="display: flex; gap: 1rem; align-items: center;">
+                                        <div class="order-status-badge ${order.badgeClass || 'badge-warning'}">
+                                            ${order.status}
+                                        </div>
+                                        ${!isDelivered ? `<button onclick="cancelOrder('${order.id}')" style="background: none; border: 1px solid #ef4444; color: #ef4444; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; transition: all 0.2s;"><i data-lucide="x-circle" width="16" height="16"></i> Cancel Order</button>` : ''}
                                     </div>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 1.5rem;">
@@ -144,6 +147,81 @@
                 document.getElementById('emptyOrderContent').style.display = 'block';
             }
         });
+
+        window.cancelOrder = function(orderId) {
+            showModernUserConfirm('Cancel Order?', 'Are you sure you want to cancel this order? This action cannot be undone.', 'danger', async () => {
+                try {
+                    const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, { method: 'DELETE' });
+                    if(res.ok) {
+                        if(window.showToast) window.showToast('Order cancelled successfully.');
+                        else alert('Order cancelled successfully.');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        if(window.showToast) window.showToast('Failed to cancel order.');
+                        else alert('Failed to cancel order.');
+                    }
+                } catch(err) {
+                    console.error('Error cancelling order', err);
+                    if(window.showToast) window.showToast('Something went wrong. Could not cancel order.');
+                    else alert('Something went wrong. Could not cancel order.');
+                }
+            });
+        };
+
+        window.showModernUserConfirm = function(title, message, type, onYes) {
+            const overlay = document.createElement('div');
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: '0', left: '0', right: '0', bottom: '0',
+                background: 'rgba(0,0,0,0.5)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                zIndex: '10000', opacity: '0', transition: 'all 0.3s ease'
+            });
+            
+            const isDanger = type === 'danger';
+            const iconColor = isDanger ? '#ef4444' : '#2ECC71';
+            const lucideIcon = isDanger ? 'alert-circle' : 'help-circle';
+            
+            overlay.innerHTML = `
+                <div style="background: white; padding: 2rem; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: scale(0.9); transition: all 0.3s ease; text-align: center;">
+                    <div style="color: ${iconColor}; margin-bottom: 1rem;"><i data-lucide="${lucideIcon}" width="48" height="48"></i></div>
+                    <h3 style="margin: 0 0 1rem; color: #1e293b; font-size: 1.5rem;">${title}</h3>
+                    <p style="margin: 0 0 2rem; color: #64748b;">${message}</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="no-btn" style="padding: 0.75rem 1.5rem; border: none; background: #f1f5f9; color: #475569; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">No, Keep It</button>
+                        <button class="yes-btn" style="padding: 0.75rem 1.5rem; border: none; background: ${iconColor}; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">Yes, Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            if (window.lucide) window.lucide.createIcons();
+            
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                overlay.firstElementChild.style.transform = 'scale(1)';
+            });
+            
+            const close = () => {
+                overlay.style.opacity = '0';
+                overlay.firstElementChild.style.transform = 'scale(0.9)';
+                setTimeout(() => overlay.remove(), 300);
+            };
+            
+            overlay.querySelector('.no-btn').onclick = close;
+            overlay.querySelector('.yes-btn').onclick = () => {
+                const btn = overlay.querySelector('.yes-btn');
+                btn.innerHTML = '<i data-lucide="loader" class="spin-icon" width="16" height="16"></i> Cancelling...';
+                if(!document.getElementById('spin-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'spin-style';
+                    style.innerHTML = '@keyframes spin { 100% { transform: rotate(360deg); } } .spin-icon { animation: spin 1s linear infinite; }';
+                    document.head.appendChild(style);
+                }
+                if (window.lucide) window.lucide.createIcons();
+                onYes().finally(close);
+            };
+        };
     </script>
     <script src="js/auth-ui.js"></script>
 </body>

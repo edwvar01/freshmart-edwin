@@ -41,7 +41,7 @@ router.put('/:id/deliver', async (req, res) => {
         const order = await Order.findOneAndUpdate(
             { id: req.params.id }, 
             { status: 'Delivered', badgeClass: 'badge-success' },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!order) return res.status(404).json({ message: 'Order not found' });
         res.json(order);
@@ -50,6 +50,16 @@ router.put('/:id/deliver', async (req, res) => {
     }
 });
 
+// Delete (cancel) an order
+router.delete('/:id', async (req, res) => {
+    try {
+        const order = await Order.findOneAndDelete({ id: req.params.id });
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        res.json({ message: 'Order deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // Get all orders containing a farmer's products and calculate sales
 router.get('/farmer/:uploader', async (req, res) => {

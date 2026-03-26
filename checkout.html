@@ -211,8 +211,8 @@
 
             document.getElementById('summaryTitle').innerText = `Order Summary (${totalItemsCount} items)`;
 
-            const platformFee = 5;
-            const deliveryFee = subtotal <= 300 ? 20 : 0;
+            const platformFee = 2;
+            const deliveryFee = subtotal <= 300 ? 10 : 0;
             const total = subtotal + deliveryFee + platformFee;
 
             document.getElementById('summarySubtotal').innerText = `₹${subtotal.toFixed(2)}`;

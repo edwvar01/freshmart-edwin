@@ -222,6 +222,40 @@ window.addToCart = function(productStr) {
 
     localStorage.setItem(cartKey, JSON.stringify(cart));
     
-    alert(product.name + ' has been added to your cart!');
+    showToast(product.name + ' has been added to your cart!');
     window.updateCartBadge();
+};
+
+window.showToast = function(message) {
+    const toast = document.createElement('div');
+    toast.innerText = message;
+    Object.assign(toast.style, {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        background: '#2ECC71',
+        color: 'white',
+        padding: '12px 24px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        zIndex: '10000',
+        fontWeight: '500',
+        transform: 'translateY(100px)',
+        opacity: '0',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    });
+    document.body.appendChild(toast);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+    });
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.transform = 'translateY(100px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 };
