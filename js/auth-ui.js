@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
             right: 0;
             top: 110%;
             background: white;
-            min-width: 200px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-radius: 12px;
+            min-width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            border-radius: 16px;
             padding: 10px 0;
             display: none;
             flex-direction: column;
@@ -50,20 +50,48 @@ document.addEventListener('DOMContentLoaded', () => {
             display: flex;
         }
         .dropdown-header {
-            padding: 10px 20px;
-            border-bottom: 1px solid #eee;
+            padding: 24px 20px;
+            border-bottom: 1px solid #f1f5f9;
             margin-bottom: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .header-avatar {
+            width: 64px;
+            height: 64px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
         }
         .dropdown-name {
-            font-weight: 600;
-            margin: 0;
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin: 0 0 4px 0;
             color: var(--text-dark);
         }
+        .dropdown-email {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0 0 8px 0;
+        }
         .dropdown-role {
-            font-size: 0.8rem;
-            color: #888;
-            text-transform: capitalize;
-            margin: 0;
+            font-size: 0.75rem;
+            color: #fff;
+            background: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
         .dropdown-item {
             padding: 10px 20px;
@@ -114,15 +142,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-header">
+                            <div class="header-avatar">${avatarLetter}</div>
                             <p class="dropdown-name">${user.name}</p>
-                            <p class="dropdown-role">${user.role} Account</p>
+                            <p class="dropdown-email">${user.email || 'customer@freshmart.com'}</p>
+                            <span class="dropdown-role">${user.role}</span>
                         </div>
                         <a href="${dashboardLink}" class="dropdown-item">
-                            <i data-lucide="${user.role === 'farmer' ? 'layout-dashboard' : 'package'}" width="16" height="16"></i>
+                            <i data-lucide="${user.role === 'farmer' ? 'layout-dashboard' : 'package'}" width="18" height="18"></i>
                             ${dashboardText}
                         </a>
-                        <a href="#" class="dropdown-item" onclick="handleLogout(event)">
-                            <i data-lucide="log-out" width="16" height="16"></i>
+                        <a href="cart.html" class="dropdown-item">
+                            <i data-lucide="shopping-cart" width="18" height="18"></i>
+                            My Cart
+                        </a>
+                        <a href="#" class="dropdown-item logout" onclick="handleLogout(event)">
+                            <i data-lucide="log-out" width="18" height="18"></i>
                             Logout
                         </a>
                     </div>

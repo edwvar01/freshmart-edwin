@@ -69,7 +69,7 @@
                     <!-- Image Gallery -->
                     <div class="product-detail-image">
                         <img id="detailImage"
-                            src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&q=80"
+                            src="https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                             alt="Product Image">
                     </div>
 
@@ -179,8 +179,14 @@
 
             // Populate DOM
             document.title = `FreshMart - ${product.name}`;
-            document.getElementById('detailImage').src = product.image;
-            document.getElementById('detailImage').alt = product.name;
+            const fallbackImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+            const detailImg = document.getElementById('detailImage');
+            detailImg.src = product.image || fallbackImage;
+            detailImg.onerror = function() {
+                this.onerror = null;
+                this.src = fallbackImage;
+            };
+            detailImg.alt = product.name;
             document.getElementById('detailTitle').innerText = product.name;
             document.getElementById('detailCategory').innerText = product.category || 'Grocery';
             document.getElementById('detailWeight').innerText = product.weight || '1 unit';
