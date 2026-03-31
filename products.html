@@ -91,7 +91,7 @@
                         <h4>Fight Food Waste</h4>
                         <p>Buy "Near Expiry" items to save money and the planet!</p>
                         <button class="promo-btn"
-                            onclick="document.querySelector('.category-btn:nth-child(6)').click()">View Deals</button>
+                            onclick="Array.from(document.querySelectorAll('.category-btn')).find(b => b.textContent.trim() === 'Near Expiry').click()">View Deals</button>
                     </div>
                 </aside>
 
@@ -146,13 +146,32 @@
 
                 products.forEach(p => {
                     const isDiscount = p.isDiscount || false;
+
+                    let isOneDayLeft = false;
+                    if (p.expiryDate) {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const expiry = new Date(p.expiryDate);
+                        expiry.setHours(0, 0, 0, 0);
+                        const diffTime = expiry - today;
+                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays === 1) {
+                            isOneDayLeft = true;
+                        }
+                    }
+
                     const discountBadges = isDiscount ? `
                         <div class="product-badges">
                             <span class="badge badge-warning">
                                 <i data-lucide="clock" width="12" height="12"></i> 2 Days Left
                             </span>
                             <span class="badge badge-discount">-40%</span>
-                        </div>` : '';
+                        </div>` : (isOneDayLeft ? `
+                        <div class="product-badges">
+                            <span class="badge badge-warning">
+                                <i data-lucide="clock" width="12" height="12"></i> 1 Day Left
+                            </span>
+                        </div>` : '');
 
                     const priceHTML = isDiscount && p.originalPrice
                         ? `<span class="product-price">₹${p.price}</span><span class="product-original-price">₹${p.originalPrice}</span>`
@@ -162,7 +181,7 @@
                     const weightLabel = p.weight || "1 unit";
 
                     const cardHTML = `
-                        <div class="product-card" onclick="window.location.href='product-details.html?id=${p.id}'">
+                        <div class="product-card" data-near-expiry="${isOneDayLeft}" onclick="window.location.href='product-details.html?id=${p.id}'">
                             <div class="product-image-container">
                                 <img src="${p.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}" alt="${p.name}" class="product-image" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';">
                                 ${discountBadges}
@@ -232,7 +251,8 @@
                         matchesCategory = isDiscount;
                     } else if (currentCategory === 'Near Expiry') {
                         // Show products that are either marked as near expiry or have a discount
-                        matchesCategory = isDiscount || title.includes('expiry');
+                        const isNearExpiry = card.getAttribute('data-near-expiry') === 'true';
+                        matchesCategory = isDiscount || title.includes('expiry') || isNearExpiry;
                     } else if (currentCategory === 'Herbs & Spices') {
                         matchesCategory = category === 'Herbs';
                     } else if (currentCategory === 'Fresh Vegetables') {
