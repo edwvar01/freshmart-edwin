@@ -122,6 +122,7 @@
                                         <div class="order-status-badge ${order.badgeClass || 'badge-warning'}">
                                             ${order.status}
                                         </div>
+                                        ${order.qualityStatus === 'Uploaded' ? `<button onclick="viewQualityProof('${order.id}')" style="background: #2ECC71; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; transition: all 0.2s;"><i data-lucide="image" width="16" height="16"></i> View Quality Proof</button>` : ''}
                                         ${!isDelivered ? `<button onclick="cancelOrder('${order.id}')" style="background: none; border: 1px solid #ef4444; color: #ef4444; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; transition: all 0.2s;"><i data-lucide="x-circle" width="16" height="16"></i> Cancel Order</button>` : ''}
                                     </div>
                                 </div>
@@ -221,6 +222,46 @@
                 if (window.lucide) window.lucide.createIcons();
                 onYes().finally(close);
             };
+        };
+
+        window.viewQualityProof = function(orderId) {
+            const overlay = document.createElement('div');
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: '0', left: '0', right: '0', bottom: '0',
+                background: 'rgba(0,0,0,0.8)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                zIndex: '10000', opacity: '0', transition: 'all 0.3s ease'
+            });
+            
+            overlay.innerHTML = `
+                <div style="background: white; padding: 1.5rem; border-radius: 16px; width: 90%; max-width: 600px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: scale(0.9); transition: all 0.3s ease; text-align: center; position: relative;">
+                    <button class="close-btn" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; cursor: pointer; color: #64748b; transition: color 0.2s;">
+                        <i data-lucide="x" width="24" height="24"></i>
+                    </button>
+                    <h3 style="margin: 0 0 1.5rem; color: #1e293b; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="check-circle" width="28" height="28" style="color: #2ECC71;"></i> Quality Verification Proof</h3>
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                        <img src="http://localhost:5000/api/orders/${orderId}/quality-photo" style="max-width: 100%; max-height: 60vh; border-radius: 8px; object-fit: contain;">
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            if (window.lucide) window.lucide.createIcons();
+            
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                overlay.firstElementChild.style.transform = 'scale(1)';
+            });
+            
+            const close = () => {
+                overlay.style.opacity = '0';
+                overlay.firstElementChild.style.transform = 'scale(0.9)';
+                setTimeout(() => overlay.remove(), 300);
+            };
+            
+            overlay.querySelector('.close-btn').addEventListener('click', close);
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
         };
     </script>
     <script src="js/auth-ui.js"></script>

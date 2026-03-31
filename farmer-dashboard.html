@@ -64,6 +64,7 @@
                     <button class="tab-btn active" onclick="switchFarmerTab('dashboard')">Dashboard</button>
                     <button class="tab-btn" onclick="switchFarmerTab('inventory')">My Inventory</button>
                     <button class="tab-btn" onclick="switchFarmerTab('upload')">Upload New</button>
+                    <button class="tab-btn" onclick="switchFarmerTab('orders')">Order Requests</button>
                 </div>
 
                 <section id="tab-dashboard" class="tab-content active">
@@ -177,6 +178,29 @@
                     </div>
                 </section>
 
+                <section id="tab-orders" class="tab-content">
+                    <div class="tracking-section">
+                        <div class="upload-header">
+                            <h2><i data-lucide="shopping-bag" width="24" height="24"></i> Order Requests</h2>
+                        </div>
+                        <div class="tracking-container" style="background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 4px 25px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                                <thead>
+                                    <tr style="text-align: left; border-bottom: 2px solid #f1f5f9; color: #64748b;">
+                                        <th style="padding: 1rem;">Order ID</th>
+                                        <th style="padding: 1rem;">Date</th>
+                                        <th style="padding: 1rem;">Items</th>
+                                        <th style="padding: 1rem;">Verification Process</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="farmerOrdersBody">
+                                    <tr><td colspan="4" style="text-align: center; padding: 2rem; color: #94a3b8;">Loading orders...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
                 </div>
             </main>
 
@@ -198,6 +222,7 @@
             document.querySelector('.tab-btn[onclick="switchFarmerTab(\'' + tabId + '\')"]').classList.add('active');
             document.getElementById('tab-' + tabId).classList.add('active');
             if (tabId === 'inventory') loadMyUploads();
+            if (tabId === 'orders') loadFarmerOrders();
         }
 
         function deleteFarmerProduct(id) {
@@ -280,6 +305,84 @@
             loadMyUploads();
             loadSales();
         });
+
+        function loadFarmerOrders() {
+            const userJson = localStorage.getItem('fm_user');
+            if (!userJson) return;
+            const user = JSON.parse(userJson);
+            fetch('http://localhost:5000/api/orders/farmer-orders/' + encodeURIComponent(user.name))
+                .then(res => res.json())
+                .then(orders => {
+                    const tbody = document.getElementById('farmerOrdersBody');
+                    if (!tbody) return;
+                    tbody.innerHTML = '';
+                    if (orders.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No orders yet.</td></tr>';
+                        return;
+                    }
+                    orders.forEach(order => {
+                        let items = Array.isArray(order.items) ? order.items : [];
+                        let itemsHtml = items.filter(i => i.uploader === user.name).map(i => `${i.name} (x${i.quantity || 1})`).join('<br>');
+                        
+                        let verificationHtml = '';
+                        if (order.qualityStatus === 'Uploaded') {
+                            verificationHtml = `<span style="color: #2ECC71; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="check-circle" width="16" height="16"></i> Uploaded</span>`;
+                        } else {
+                            verificationHtml = `
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
+                                    <input type="file" id="proof-${order.id}" accept="image/*" style="font-size: 0.8rem; width: 100%; max-width: 200px;">
+                                    <button onclick="uploadProof('${order.id}')" class="btn btn-primary" style="padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; height: auto;">Upload Photo Proof</button>
+                                </div>
+                            `;
+                        }
+                        
+                        const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : order.date;
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; font-weight: 600;">${order.id}</td>
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; color: #64748b;">${dateStr}</td>
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; color: #1e293b;">${itemsHtml}</td>
+                            <td style="padding: 1rem; border-bottom: 1px solid #f1f5f9;">${verificationHtml}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    if (window.lucide) window.lucide.createIcons();
+                })
+                .catch(err => {
+                    console.error("Error loading orders", err);
+                    const tbody = document.getElementById('farmerOrdersBody');
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem; color: #ef4444;">Failed to load orders. Please make sure the backend server was restarted.</td></tr>';
+                });
+        }
+
+        async function uploadProof(orderId) {
+            const fileInput = document.getElementById('proof-' + orderId);
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select a photo proof first.');
+                return;
+            }
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                const res = await fetch(`http://localhost:5000/api/orders/${orderId}/quality-photo`, {
+                    method: 'PUT',
+                    body: formData
+                });
+                if (res.ok) {
+                    alert('Photo proof of freshness uploaded successfully!');
+                    loadFarmerOrders();
+                } else {
+                    const data = await res.json();
+                    alert(data.message || 'Upload failed');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred during upload.');
+            }
+        }
 
         // Suppress original DOMContentLoaded
         // lucide.createIcons();

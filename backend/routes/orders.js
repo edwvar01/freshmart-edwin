@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const multer = require('multer');
+
+// Configure multer storage (Memory storage for Base64 conversion)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // Get all orders (supports filtering by user)
 router.get('/', async (req, res) => {
@@ -86,4 +91,68 @@ router.get('/farmer/:uploader', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// Get all orders containing a farmer's products (Full orders)
+router.get('/farmer-orders/:uploader', async (req, res) => {
+    try {
+        const uploader = req.params.uploader;
+        const orders = await Order.find({ 'items.uploader': uploader }).sort({ createdAt: -1 }).lean();
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Upload Quality Verification Photo
+router.put('/:id/quality-photo', upload.single('image'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No image uploaded' });
+        }
+        const base64Image = req.file.buffer.toString('base64');
+        const qualityPhoto = `data:${req.file.mimetype};base64,${base64Image}`;
+        
+        const query = { id: req.params.id };
+        const order = await Order.findOneAndUpdate(
+            query,
+            { qualityPhoto: qualityPhoto, qualityStatus: 'Uploaded' },
+            { returnDocument: 'after' }
+        );
+        
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        res.json(order);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get Quality Verification Photo
+router.get('/:id/quality-photo', async (req, res) => {
+    try {
+        const order = await Order.findOne({ id: req.params.id }).select('qualityPhoto').lean();
+        if (!order || !order.qualityPhoto) {
+            return res.status(404).json({ message: 'Photo not found' });
+        }
+        
+        const matches = order.qualityPhoto.match(/^data:([a-zA-Z0-9-+\/]+);base64,(.+)$/);
+        
+        if (!matches || matches.length !== 3) {
+            if (order.qualityPhoto.startsWith('http') || order.qualityPhoto.startsWith('/')) {
+                return res.redirect(order.qualityPhoto);
+            }
+            return res.status(400).json({ message: 'Invalid image format' });
+        }
+        
+        const mimeType = matches[1];
+        const base64Data = matches[2];
+        const binaryData = Buffer.from(base64Data, 'base64');
+        
+        res.set('Content-Type', mimeType);
+        res.set('Cache-Control', 'public, max-age=86400');
+        res.send(binaryData);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
