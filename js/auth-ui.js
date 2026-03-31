@@ -119,7 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize UI Auth State
     function renderAuthUI() {
-        const userJson = localStorage.getItem('fm_user');
+        const isFarmerPage = window.location.pathname.includes('farmer-');
+        const userJson = isFarmerPage ? localStorage.getItem('fm_farmer') : localStorage.getItem('fm_user');
         const userBtnContainer = document.querySelector('.desktop-user');
         const logoutBtn = document.querySelector('.logout-btn');
 
@@ -191,8 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // Global Logout Function
 window.handleLogout = function(e) {
     if (e) e.preventDefault();
-    localStorage.removeItem('fm_user');
-    window.location.href = 'index.html';
+    const isFarmerPage = window.location.pathname.includes('farmer-');
+    if (isFarmerPage) {
+        localStorage.removeItem('fm_farmer');
+        window.location.href = 'farmer-login.html';
+    } else {
+        localStorage.removeItem('fm_user');
+        window.location.href = 'index.html';
+    }
 };
 
 // Global Cart Functionality
