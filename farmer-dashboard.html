@@ -12,8 +12,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
 
-</head>
 
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
 <body>
     <div class="page-wrapper">
         <!-- Navbar -->
@@ -236,7 +237,7 @@
         }
 
         function loadMyUploads() {
-            const userJson = localStorage.getItem('fm_user');
+            const userJson = localStorage.getItem('fm_farmer');
             if (!userJson) return;
             const user = JSON.parse(userJson);
             fetch('http://localhost:5000/api/products/farmer/' + encodeURIComponent(user.name))
@@ -289,7 +290,7 @@
                 });
         }
         function loadSales() {
-            const userJson = localStorage.getItem('fm_user');
+            const userJson = localStorage.getItem('fm_farmer');
             if(!userJson) return;
             const user = JSON.parse(userJson);
             fetch('http://localhost:5000/api/orders/farmer/' + encodeURIComponent(user.name))
@@ -307,7 +308,7 @@
         });
 
         function loadFarmerOrders() {
-            const userJson = localStorage.getItem('fm_user');
+            const userJson = localStorage.getItem('fm_farmer');
             if (!userJson) return;
             const user = JSON.parse(userJson);
             fetch('http://localhost:5000/api/orders/farmer-orders/' + encodeURIComponent(user.name))
@@ -400,7 +401,7 @@
                 const form = new FormData(uploadForm);
                 form.append('seller', 'Farmer');
                 form.append('status', 'pending');
-                const userJson = localStorage.getItem('fm_user');
+                const userJson = localStorage.getItem('fm_farmer');
                 if (userJson) {
                     const u = JSON.parse(userJson);
                     form.append('uploader', u.name);

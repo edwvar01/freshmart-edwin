@@ -16,8 +16,9 @@
         .toggle-btn.partner-active { background: #F76B1C !important; color: white !important; box-shadow: 0 4px 12px rgba(247, 107, 28, 0.3) !important; }
     </style>
     
-</head></svg>">
-</head>
+
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <div class="background-wrapper">
@@ -214,7 +215,7 @@
                     if (data.success) {
                         const profiles = JSON.parse(localStorage.getItem('fm_profiles') || '{}');
                         const displayName = profiles[username] || username.split('@')[0];
-                        localStorage.setItem('fm_user', JSON.stringify({ name: displayName, email: username, role: data.role, token: data.token }));
+                        localStorage.setItem('fm_farmer', JSON.stringify({ name: displayName, email: username, role: data.role, token: data.token }));
                         window.location.href = 'farmer-dashboard.html';
                     } else {
                         errorDiv.innerText = "Invalid password or shop ID.";
